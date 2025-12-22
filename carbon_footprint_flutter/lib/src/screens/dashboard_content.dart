@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:carbon_footprint_client/carbon_footprint_client.dart';
 import '../../main.dart'; // To access global `client`
@@ -20,6 +21,8 @@ class _DashboardContentState extends State<DashboardContent> {
   bool _isLoading = true;
   double _solarValue = 0.0; // 0 to 1
   double _evKmValue = 0.0; // 0 to 500
+  String _gridStatus = 'LOADING';
+  String _gridAdvice = '';
   
   final List<String> _tips = [
     'Washing clothes at 30°C saves up to 40% energy!',
@@ -52,11 +55,16 @@ class _DashboardContentState extends State<DashboardContent> {
       }
       final actions = await client.action.getActions(0);
       final suggestions = await client.butler.getActiveSuggestions();
+      final status = await client.butler.getGridStatus();
+      final advice = await client.butler.getGridAdvice();
+
       if (mounted) {
         setState(() {
           _stats = stats;
           _recentActions = actions;
           _butlerEvents = suggestions;
+          _gridStatus = status;
+          _gridAdvice = advice;
           _isLoading = false;
         });
       }
@@ -74,6 +82,7 @@ class _DashboardContentState extends State<DashboardContent> {
       return const Center(child: CircularProgressIndicator());
     }
 
+    final theme = Theme.of(context);
     final ecoScore = _stats?.ecoScore ?? 0;
     final spots = _recentActions.asMap().entries.map((e) {
       return FlSpot(e.key.toDouble(), e.value.co2Saved);
@@ -83,13 +92,16 @@ class _DashboardContentState extends State<DashboardContent> {
       spots.add(const FlSpot(0, 0));
     }
 
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 1. Eco Score Card (Premium Gradient)
+    return Scaffold(
+      backgroundColor: theme.colorScheme.surface,
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 8),
+              // 1. Eco Score Card (Premium Gradient)
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
@@ -103,9 +115,9 @@ class _DashboardContentState extends State<DashboardContent> {
               ),
               child: GlassCard(
                 gradientColors: [
-                  const Color(0xFF1B5E20),
-                  const Color(0xFF43A047),
-                  const Color(0xFF81C784),
+                  theme.colorScheme.primary,
+                  theme.colorScheme.secondary,
+                  theme.colorScheme.tertiary.withValues(alpha: 0.8),
                 ],
                 child: Padding(
                   padding: const EdgeInsets.all(24),
@@ -117,21 +129,24 @@ class _DashboardContentState extends State<DashboardContent> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Eco Score', style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.w500)),
-                              Text('$ecoScore', style: const TextStyle(color: Colors.white, fontSize: 56, fontWeight: FontWeight.w900, letterSpacing: -2)),
+                              Text('Eco Score', style: GoogleFonts.outfit(color: Colors.white.withValues(alpha: 0.8), fontSize: 14, fontWeight: FontWeight.w600, letterSpacing: 1.2)),
+                              Text('$ecoScore', style: const TextStyle(color: Colors.white, fontSize: 64, fontWeight: FontWeight.w900, letterSpacing: -3)),
                             ],
                           ),
                           Container(
-                            padding: const EdgeInsets.all(12),
+                            padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.2),
                               shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10),
+                              ],
                             ),
-                            child: const Icon(Icons.eco, color: Colors.white, size: 40),
+                            child: const Icon(Icons.eco, color: Colors.white, size: 32),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 24),
                       Container(height: 1, color: Colors.white24),
                       const SizedBox(height: 20),
                       Row(
@@ -279,10 +294,10 @@ class _DashboardContentState extends State<DashboardContent> {
                 ),
               ),
             ),
-            const SizedBox(height: 32),
           ],
         ),
-      );
+      ),
+    );
   }
 
   void _showForestAnalysis() {
@@ -436,23 +451,27 @@ class _DashboardContentState extends State<DashboardContent> {
   }
 
   Widget _buildImpactCard({required double totalCo2Saved}) {
+    final theme = Theme.of(context);
     final trees = (totalCo2Saved / 5.0).toStringAsFixed(1);
     
     return GlassCard(
       opacity: 0.05,
-      gradientColors: [Colors.green.withValues(alpha: 0.1), Colors.green.withValues(alpha: 0.05)],
+      gradientColors: [
+        theme.colorScheme.primary.withValues(alpha: 0.1),
+        theme.colorScheme.primary.withValues(alpha: 0.05)
+      ],
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.park, color: Colors.green, size: 32),
+            Icon(Icons.park, color: theme.colorScheme.primary, size: 32),
             const SizedBox(height: 12),
-            const Text('Total Impact', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            Text('TOTAL IMPACT', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 10, letterSpacing: 1.2, color: Colors.grey)),
             const SizedBox(height: 8),
             Text(
-              '$trees',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.greenAccent),
+              trees,
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: theme.colorScheme.primary, letterSpacing: -1),
             ),
             const Text('Trees Equivalent', style: TextStyle(fontSize: 10, color: Colors.grey), textAlign: TextAlign.center),
           ],
@@ -462,97 +481,145 @@ class _DashboardContentState extends State<DashboardContent> {
   }
 
   Widget _buildButlerSuggestion(ButlerEvent event) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4)),
-        ],
-      ),
-      child: GlassCard(
-        gradientColors: [
-          const Color(0xFF263238),
-          const Color(0xFF37474F),
-        ],
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(color: Colors.blue.withValues(alpha: 0.2), shape: BoxShape.circle),
-                    child: const Icon(Icons.face_retouching_natural, color: Colors.blueAccent, size: 24),
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
+    Color statusColor = Colors.grey;
+    if (_gridStatus == 'CLEAN') statusColor = Colors.greenAccent;
+    if (_gridStatus == 'DIRTY') statusColor = Colors.orangeAccent;
+
+    return GlassCard(
+      opacity: 0.08,
+      gradientColors: isDark ? [
+        const Color(0xFF1A1A1A),
+        const Color(0xFF0D0D0D),
+      ] : [
+        theme.colorScheme.primary.withValues(alpha: 0.05),
+        theme.colorScheme.onSurface.withValues(alpha: 0.02),
+      ],
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(width: 12),
-                  const Text('Butler\'s Suggestion', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                  const Spacer(),
-                  Text('${event.timestamp.hour}:${event.timestamp.minute.toString().padLeft(2, '0')}', style: const TextStyle(color: Colors.white54, fontSize: 12)),
-                ],
+                  child: Icon(Icons.auto_awesome, color: theme.colorScheme.primary, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Text('Butler Suggestions', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Spacer(),
+                _buildGridBadge(statusColor),
+              ],
+            ),
+            const SizedBox(height: 20),
+            if (_gridStatus == 'DIRTY') ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.orange.withValues(alpha: 0.2)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 16),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _gridAdvice,
+                        style: const TextStyle(fontSize: 11, color: Colors.orange, fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
-              Text(event.message, style: const TextStyle(color: Colors.white70, fontSize: 15, height: 1.4)),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      onPressed: () async {
-                        try {
-                          await client.butler.resolveEvent(event.id!);
-                          if (mounted) {
-                            setState(() {
-                              _butlerEvents.remove(event);
-                            });
-                          }
-                        } catch (e) {
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error resolving suggestion: $e')));
-                          }
-                        }
-                      },
-                      child: const Text('Maybe later', style: TextStyle(decoration: TextDecoration.underline)),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                      ),
-                      onPressed: () async {
-                        try {
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Working on it!')));
-                          await client.butler.sendMessage('Confirmed: ${event.message}');
-                          await client.butler.resolveEvent(event.id!); // Mark as resolved persistently
-                          if (mounted) {
-                            setState(() {
-                              _butlerEvents.remove(event);
-                            });
-                            _fetchData();
-                          }
-                        } catch (e) {
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-                          }
-                        }
-                      },
-                      child: const Text('Make it so'),
-                    ),
-                  ),
-                ],
-              ),
             ],
-          ),
+            Text(
+              event.message,
+              style: TextStyle(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                fontSize: 15,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () async {
+                      try {
+                        await client.butler.resolveEvent(event.id!);
+                        if (mounted) setState(() => _butlerEvents.remove(event));
+                      } catch (e) {
+                         if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                      }
+                    },
+                    child: const Text('Dismiss'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.primary,
+                      foregroundColor: Colors.white,
+                    ),
+                    onPressed: () async {
+                      try {
+                        final userName = sessionManager.signedInUser?.userName ?? "Friend";
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Executing order, $userName.')));
+                        await client.butler.sendMessage('Confirmed: ${event.message}');
+                        await client.butler.resolveEvent(event.id!);
+                        if (mounted) {
+                          setState(() => _butlerEvents.remove(event));
+                          _fetchData();
+                        }
+                      } catch (e) {
+                        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                      }
+                    },
+                    child: const Text('Execute'),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildGridBadge(Color statusColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: statusColor.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: statusColor.withValues(alpha: 0.3), width: 1.5),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(color: statusColor, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            'GRID: $_gridStatus',
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: statusColor, letterSpacing: 0.5),
+          ),
+        ],
       ),
     );
   }
@@ -814,20 +881,21 @@ class _DashboardContentState extends State<DashboardContent> {
 
   Widget _buildBudgetGauge() {
     if (_stats == null) return const SizedBox.shrink();
+    final theme = Theme.of(context);
     
     double used = (_stats!.monthlyBudget - _stats!.monthlyCo2Saved).clamp(0, _stats!.monthlyBudget);
     double percent = (used / _stats!.monthlyBudget).clamp(0.0, 1.0);
     
-    Color gaugeColor = Colors.green;
-    if (percent > 0.5) gaugeColor = Colors.orange;
-    if (percent > 0.8) gaugeColor = Colors.red;
+    Color gaugeColor = theme.colorScheme.primary;
+    if (percent > 0.5) gaugeColor = Colors.orangeAccent;
+    if (percent > 0.8) gaugeColor = Colors.redAccent;
 
     return InkWell(
       onTap: () => _showBaselineCalculator(),
       borderRadius: BorderRadius.circular(24),
       child: GlassCard(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -835,20 +903,20 @@ class _DashboardContentState extends State<DashboardContent> {
                 alignment: Alignment.center,
                 children: [
                   SizedBox(
-                    height: 60,
-                    width: 60,
+                    height: 64,
+                    width: 64,
                     child: CircularProgressIndicator(
                       value: percent,
-                      strokeWidth: 8,
-                      backgroundColor: Colors.grey.withValues(alpha: 0.1),
+                      strokeWidth: 6,
+                      backgroundColor: theme.colorScheme.onSurface.withValues(alpha: 0.05),
                       color: gaugeColor,
                     ),
                   ),
-                  Text('${used.toInt()}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text('${used.toInt()}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: theme.colorScheme.onSurface)),
                 ],
               ),
               const SizedBox(height: 12),
-              const Text('Month Left', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              Text('MONTH LEFT', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 10, letterSpacing: 1.2, color: Colors.grey)),
               const Text('kg CO2 Remaining', style: TextStyle(fontSize: 10, color: Colors.grey), textAlign: TextAlign.center),
             ],
           ),

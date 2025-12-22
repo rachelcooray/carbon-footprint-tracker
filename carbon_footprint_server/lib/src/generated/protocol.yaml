@@ -6,6 +6,8 @@ butler:
   - sendMessage:
   - getActiveSuggestions:
   - generateDailyBriefing:
+  - getGridStatus:
+  - getGridAdvice:
   - resolveEvent:
 challenge:
   - getUserChallenges:
@@ -28,5 +30,6 @@ stats:
   - getLeaderboard:
   - getBadges:
   - updateMonthlyBudget:
+  - getEcotrajectory:
 greeting:
   - hello:

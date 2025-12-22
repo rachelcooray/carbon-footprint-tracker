@@ -1,4 +1,5 @@
 import 'package:carbon_footprint_server/src/birthday_reminder.dart';
+import 'package:carbon_footprint_server/src/future_calls/midnight_audit.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart' as auth;
 
@@ -57,6 +58,11 @@ void run(List<String> args) async {
     FutureCallNames.birthdayReminder.name,
   );
 
+  pod.registerFutureCall(
+    MidnightAudit(),
+    FutureCallNames.midnightAudit.name,
+  );
+
   // You can schedule future calls for a later time during startup. But you can also
   // schedule them in any endpoint or webroute through the session object.
   // there is also [futureCallAtTime] if you want to schedule a future call at a
@@ -70,6 +76,13 @@ void run(List<String> args) async {
     ),
     Duration(seconds: 5),
   );
+
+  // Schedule first Midnight Audit in 1 minute for demonstration/verification
+  await pod.futureCallWithDelay(
+    FutureCallNames.midnightAudit.name,
+    null,
+    const Duration(minutes: 1),
+  );
 }
 
 /// Names of all future calls in the server.
@@ -78,4 +91,5 @@ void run(List<String> args) async {
 /// typos and make it easier to refactor the code.
 enum FutureCallNames {
   birthdayReminder,
+  midnightAudit,
 }

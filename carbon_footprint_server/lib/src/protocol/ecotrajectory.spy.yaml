@@ -1,0 +1,7 @@
+class: Ecotrajectory
+fields:
+  netZeroDate: DateTime
+  savingsRate: double
+  isAchievable: bool
+  daysToNetZero: int
+  currentCarbonDebt: double

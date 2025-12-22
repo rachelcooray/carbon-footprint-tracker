@@ -24,9 +24,11 @@ import 'package:carbon_footprint_client/src/protocol/social_post.dart' as _i9;
 import 'package:carbon_footprint_client/src/protocol/user_stats.dart' as _i10;
 import 'package:carbon_footprint_client/src/protocol/user_profile.dart' as _i11;
 import 'package:carbon_footprint_client/src/protocol/badge.dart' as _i12;
-import 'package:carbon_footprint_client/src/protocol/greeting.dart' as _i13;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i14;
-import 'protocol.dart' as _i15;
+import 'package:carbon_footprint_client/src/protocol/ecotrajectory.dart'
+    as _i13;
+import 'package:carbon_footprint_client/src/protocol/greeting.dart' as _i14;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i15;
+import 'protocol.dart' as _i16;
 
 /// {@category Endpoint}
 class EndpointAction extends _i1.EndpointRef {
@@ -81,6 +83,18 @@ class EndpointButler extends _i1.EndpointRef {
       caller.callServerEndpoint<String>(
         'butler',
         'generateDailyBriefing',
+        {},
+      );
+
+  _i2.Future<String> getGridStatus() => caller.callServerEndpoint<String>(
+        'butler',
+        'getGridStatus',
+        {},
+      );
+
+  _i2.Future<String> getGridAdvice() => caller.callServerEndpoint<String>(
+        'butler',
+        'getGridAdvice',
         {},
       );
 
@@ -245,6 +259,13 @@ class EndpointStats extends _i1.EndpointRef {
         'updateMonthlyBudget',
         {'budget': budget},
       );
+
+  _i2.Future<_i13.Ecotrajectory> getEcotrajectory() =>
+      caller.callServerEndpoint<_i13.Ecotrajectory>(
+        'stats',
+        'getEcotrajectory',
+        {},
+      );
 }
 
 /// This is an example endpoint that returns a greeting message through its [hello] method.
@@ -256,8 +277,8 @@ class EndpointGreeting extends _i1.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i2.Future<_i13.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i13.Greeting>(
+  _i2.Future<_i14.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i14.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -266,10 +287,10 @@ class EndpointGreeting extends _i1.EndpointRef {
 
 class Modules {
   Modules(Client client) {
-    auth = _i14.Caller(client);
+    auth = _i15.Caller(client);
   }
 
-  late final _i14.Caller auth;
+  late final _i15.Caller auth;
 }
 
 class Client extends _i1.ServerpodClientShared {
@@ -288,7 +309,7 @@ class Client extends _i1.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
           host,
-          _i15.Protocol(),
+          _i16.Protocol(),
           securityContext: securityContext,
           authenticationKeyManager: authenticationKeyManager,
           streamingConnectionTimeout: streamingConnectionTimeout,

@@ -28,9 +28,12 @@ class SocialEndpoint extends Endpoint {
     final sender = await Users.findUserByUserId(session, userInfo.userId);
     final name = sender?.userName ?? "a fellow tracker";
 
+    final targetUser = await Users.findUserByUserId(session, targetUserId);
+    final targetName = targetUser?.userName ?? "Friend";
+
     await ButlerMessage.db.insertRow(session, ButlerMessage(
       userId: targetUserId,
-      text: 'Good news, sir/madam! Your companion $name has sent you a formal "Cheer" for your excellent eco-progress. A splendid show indeed!',
+      text: 'Good news, $targetName! Your companion $name has sent you a formal "Cheer" for your excellent eco-progress. A splendid show indeed!',
       isFromButler: true,
       timestamp: DateTime.now(),
     ));
@@ -42,9 +45,12 @@ class SocialEndpoint extends Endpoint {
     final sender = await Users.findUserByUserId(session, userInfo.userId);
     final name = sender?.userName ?? "a fellow tracker";
 
+    final targetUser = await Users.findUserByUserId(session, targetUserId);
+    final targetName = targetUser?.userName ?? "Friend";
+
     await ButlerMessage.db.insertRow(session, ButlerMessage(
       userId: targetUserId,
-      text: 'I apologize for the interruption, sir/madam, but $name has requested that I "Nudge" you. They are eagerly awaiting your next noble eco-action!',
+      text: 'I apologize for the interruption, $targetName, but $name has requested that I "Nudge" you. They are eagerly awaiting your next noble eco-action!',
       isFromButler: true,
       timestamp: DateTime.now(),
     ));

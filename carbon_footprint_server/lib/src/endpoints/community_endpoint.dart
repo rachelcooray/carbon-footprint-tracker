@@ -51,10 +51,13 @@ class CommunityEndpoint extends Endpoint {
         iconType: 'pioneer',
       ));
 
+      final user = await Users.findUserByUserId(session, userInfo.userId);
+      final userName = user?.userName ?? "Friend";
+
       await ButlerEvent.db.insertRow(session, ButlerEvent(
         userId: userInfo.userId,
         type: 'celebration',
-        message: 'A leader emerges! You have founded the "$name" community, sir/madam. You are officially an "Eco Pioneer"!',
+        message: 'A leader emerges! You have founded the "$name" community, $userName. You are officially an "Eco Pioneer"!',
         timestamp: DateTime.now(),
         isResolved: false,
       ));

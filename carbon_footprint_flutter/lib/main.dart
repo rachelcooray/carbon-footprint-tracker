@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:serverpod_flutter/serverpod_flutter.dart';
 import 'package:serverpod_auth_shared_flutter/serverpod_auth_shared_flutter.dart';
 import 'package:serverpod_auth_email_flutter/serverpod_auth_email_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'src/screens/main_screen.dart';
 
 late final Client client;
@@ -68,25 +69,27 @@ class _MyAppState extends State<MyApp> {
             colorScheme: ColorScheme.fromSeed(
               seedColor: const Color(0xFF1B5E20), // Deep Forest Green
               primary: const Color(0xFF2E7D32),
-              secondary: const Color(0xFF81C784), // Soft Sage
+              secondary: const Color(0xFF388E3C), // Stronger green
+              tertiary: const Color(0xFFFBC02D), // Gold for accents
               surface: Colors.white,
               brightness: Brightness.light,
             ),
-            textTheme: const TextTheme(
-              headlineMedium: TextStyle(fontWeight: FontWeight.bold, letterSpacing: -0.5),
-              titleLarge: TextStyle(fontWeight: FontWeight.w600),
+            textTheme: GoogleFonts.outfitTextTheme(ThemeData.light().textTheme).copyWith(
+              headlineMedium: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: -0.5),
+              titleLarge: const TextStyle(fontWeight: FontWeight.w600),
             ),
-            appBarTheme: const AppBarTheme(
+            appBarTheme: AppBarTheme(
               backgroundColor: Colors.transparent,
               elevation: 0,
               centerTitle: true,
-              titleTextStyle: TextStyle(color: Color(0xFF1B5E20), fontSize: 20, fontWeight: FontWeight.bold),
-              iconTheme: IconThemeData(color: Color(0xFF1B5E20)),
+              titleTextStyle: GoogleFonts.outfit(color: const Color(0xFF1B5E20), fontSize: 20, fontWeight: FontWeight.bold),
+              iconTheme: const IconThemeData(color: Color(0xFF1B5E20)),
             ),
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                textStyle: GoogleFonts.outfit(fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -96,19 +99,25 @@ class _MyAppState extends State<MyApp> {
               seedColor: const Color(0xFF81C784),
               primary: const Color(0xFF43A047),
               secondary: const Color(0xFFA5D6A7),
-              surface: const Color(0xFF121212),
+              tertiary: const Color(0xFFFFD54F),
+              surface: const Color(0xFF0A0A0A), // Deeper dark
               brightness: Brightness.dark,
             ),
-            appBarTheme: const AppBarTheme(
+            textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme).copyWith(
+              headlineMedium: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: -0.5),
+              titleLarge: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            appBarTheme: AppBarTheme(
               backgroundColor: Colors.transparent,
               elevation: 0,
               centerTitle: true,
-              titleTextStyle: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-              iconTheme: IconThemeData(color: Colors.white),
+              titleTextStyle: GoogleFonts.outfit(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              iconTheme: const IconThemeData(color: Colors.white),
             ),
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                textStyle: GoogleFonts.outfit(fontWeight: FontWeight.bold),
               ),
             ),
           ),

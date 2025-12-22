@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../main.dart'; // For sessionManager
 import 'dashboard_content.dart';
 import 'challenges_content.dart';
@@ -67,22 +68,12 @@ class _MainScreenState extends State<MainScreen> {
         title: Text(_getTitle()),
         actions: [
           _buildThemeToggle(),
-          if (_currentIndex == 0 || _currentIndex == 1 || _currentIndex == 3 || _currentIndex == 4)
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              tooltip: 'Refresh',
-              onPressed: () => setState(() {}), // Triggers initState/build in sub-pages
-            ),
           IconButton(
             icon: const Icon(Icons.wb_sunny_rounded),
             tooltip: 'Butler Briefing',
             onPressed: _forceBriefing,
           ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Logout',
-            onPressed: () => sessionManager.signOutDevice(),
-          ),
+          const SizedBox(width: 8),
         ],
       ),
       body: IndexedStack(
@@ -124,19 +115,20 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ],
       ),
-      floatingActionButton: _currentIndex == 0 || _currentIndex == 1 // Only on Home/Insights
+      floatingActionButton: _currentIndex == 0 || _currentIndex == 1
           ? FloatingActionButton.extended(
               heroTag: 'main_fab',
               onPressed: () async {
                 final result = await Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const LogActionScreen()),
                 );
-                if (result == true) {
-                   setState(() {});
-                }
+                if (result == true) setState(() {});
               },
-              label: const Text('Log Action'),
-              icon: const Icon(Icons.add),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Colors.white,
+              elevation: 4,
+              label: Text('LOG ACTION', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, letterSpacing: 1)),
+              icon: const Icon(Icons.add_rounded),
             )
           : null,
     );

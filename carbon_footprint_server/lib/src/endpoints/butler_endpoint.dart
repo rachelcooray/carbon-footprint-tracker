@@ -1,27 +1,27 @@
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:serverpod/serverpod.dart';
+import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import '../generated/protocol.dart';
 import '../business/action_service.dart';
+import '../business/grid_service.dart';
 import 'dart:convert';
 
 class ButlerEndpoint extends Endpoint {
   GenerativeModel? _model;
 
-  Future<void> _initGemini(Session session) async {
-    if (_model != null) return;
-    
+  Future<GenerativeModel?> _getModel(Session session, String userName) async {
     // Get API key from passwords.yaml
     final apiKey = session.serverpod.getPassword('gemini_api_key');
     if (apiKey == null) {
       print('WARNING: gemini_api_key not found in passwords.yaml');
-      return;
+      return null;
     }
 
-    _model = GenerativeModel(
+    return GenerativeModel(
       model: 'gemini-2.5-flash-lite', 
       apiKey: apiKey,
       systemInstruction: Content.system(
-        'You are the Eco Butler — a formal, exceptionally polite assistant for a Carbon Footprint Tracking app. Always refer to the user as "sir" or "madam."\n\n'
+        'You are the Eco Butler — a formal, exceptionally polite assistant for a Carbon Footprint Tracking app. Always refer to the user as "$userName." Never use generic addresses like "sir" or "madam".\n\n'
         'PRIMARY RULES:\n'
         '1. If (and only if) the user expresses intent to log an eco-action, respond politely AND output:\n'
         '   ACTION: {"name": "<ActionName>", "qty": X}\n\n'
@@ -37,16 +37,14 @@ class ButlerEndpoint extends Endpoint {
         '   - "Plant-based Meal" (units)\n\n'
         '3. Quantity extraction:\n'
         '   - Extract numbers directly from the user\'s message.\n'
-        '   - If no number is provided, politely ask: "May I kindly ask how many kilometers/kilograms/meals you mean, sir/madam?"\n\n'
-        '4. When user is NOT trying to log an action:\n'
-        '   - Stay in character.\n'
-        '   - Be concise, polite, and charming.\n'
-        '   - Provide help, insights, or conversation — but NEVER output an ACTION line.\n\n'
-        '5. Safety guard:\n'
-        '   - Never guess quantities.\n'
-        '   - Never invent additional ACTION fields.\n'
-        '   - Never output malformed JSON.\n\n'
-        'Your mission: Serve, automate, and delight the user while maintaining absolute reliability in your ACTION outputs.'
+        '   - If no number is provided, politely ask: "May I kindly ask how many kilometers/kilograms/meals you mean, $userName?"\n\n'
+        'Your mission: Serve, automate, and delight $userName while maintaining absolute reliability in your ACTION outputs.\n\n'
+        'EXAMPLE DIALOGUE:\n'
+        'User: "I biked 5km today."\n'
+        'Butler: "Splendid news, $userName! I have recorded your 5km journey. A truly noble effort for the planet."\n\n'
+        'User: "How\'s the grid?"\n'
+        'Butler: "The grid is currently quite green, $userName. It would be a marvelous time to run the dishwasher."\n\n'
+        'IMPORTANT: Never, under any circumstances, use "sir" or "madam". Always use "$userName".'
       ),
     );
   }
@@ -59,18 +57,24 @@ class ButlerEndpoint extends Endpoint {
       session,
       where: (t) => t.userId.equals(userInfo.userId),
       orderBy: (t) => t.timestamp,
-      orderDescending: false, // Oldest first (Traditional top-to-bottom)
+      orderDescending: true, // Newest first
       limit: 50,
     );
-    return messages;
+    
+    // Return them in chronological order for the UI
+    return messages.reversed.toList();
   }
 
   Future<void> sendMessage(Session session, String text) async {
     final userInfo = await session.authenticated;
     if (userInfo == null) return;
     final userId = userInfo.userId;
+    
+    // Fetch user name
+    final user = await Users.findUserByUserId(session, userId);
+    final userName = user?.userName ?? "Friend";
 
-    await _initGemini(session);
+    final model = await _getModel(session, userName);
 
     // Save user message
     final userMsg = ButlerMessage(
@@ -82,13 +86,13 @@ class ButlerEndpoint extends Endpoint {
     await ButlerMessage.db.insertRow(session, userMsg);
 
     String responseText;
-    if (_model == null) {
-      responseText = "I'm sorry, sir/madam, but my intellectual circuits (API Key) seem to be disconnected.";
+    if (model == null) {
+      responseText = "I'm sorry, $userName, but my intellectual circuits (API Key) seem to be disconnected.";
     } else {
       try {
         final content = [Content.text(text)];
-        final response = await _model!.generateContent(content);
-        responseText = response.text ?? "I am momentarily speechless, sir.";
+        final response = await model.generateContent(content);
+        responseText = response.text ?? "I am momentarily speechless, $userName.";
         
         // Handle Action parsing
         if (responseText.contains('ACTION:')) {
@@ -102,7 +106,7 @@ class ButlerEndpoint extends Endpoint {
           }
         }
       } catch (e) {
-        responseText = "I apologize, madam/sir, but I encountered a technical flutter: $e";
+        responseText = "I apologize, $userName, but I encountered a technical flutter: $e";
       }
     }
 
@@ -143,27 +147,38 @@ class ButlerEndpoint extends Endpoint {
 
   Future<String> generateDailyBriefing(Session session) async {
     final userInfo = await session.authenticated;
-    if (userInfo == null) return "I cannot find your dossier, sir/madam.";
+    if (userInfo == null) return "I cannot find your dossier.";
 
     final userId = userInfo.userId;
-    await _initGemini(session);
+    final user = await Users.findUserByUserId(session, userId);
+    final userName = user?.userName ?? "Friend";
+
+    final model = await _getModel(session, userName);
     
-    // Fetch some context
+    // Fetch context
     final profile = await UserProfile.db.findFirstRow(session, where: (t) => t.userId.equals(userId));
-    final stats = await UserProfile.db.findFirstRow(session, where: (t) => t.userId.equals(userId)); // Dummy fetch for stats context
+    final gridAdvice = GridService.getGridAdvice();
     
-    // We'll use a simpler prompt for the briefing to keep it focused
     final prompt = 'User Level: ${profile?.level ?? 1}, Eco Score: ${profile?.ecoScore ?? 0}, Streak: ${profile?.streakDays ?? 0}. '
-        'Generate a formal, exceptionally polite morning briefing (max 3 sentences) greeting the user as sir/madam and encouraging them to take one specific eco-action today.';
+        'Grid Awareness Info: $gridAdvice. '
+        'Generate a formal, exceptionally polite morning briefing (max 3 sentences) greeting the user as $userName and encouraging them to take one specific action based on the current grid status.';
     
-    if (_model == null) return "I apologize, sir, but my generative facilities are offline.";
+    if (model == null) return "I apologize, $userName, but my generative facilities are offline.";
     
     try {
-      final response = await _model!.generateContent([Content.text(prompt)]);
-      return response.text ?? "A fine morning to you, sir/madam. Let us protect the planet today.";
+      final response = await model.generateContent([Content.text(prompt)]);
+      return response.text ?? "A fine morning to you, $userName. Let us protect the planet today.";
     } catch (e) {
-      return "Good morning, sir/madam. I have your schedule ready for a green day ahead.";
+      return "Good morning, $userName. I have your schedule ready for a green day ahead.";
     }
+  }
+
+  Future<String> getGridStatus(Session session) async {
+    return GridService.getGridStatus();
+  }
+
+  Future<String> getGridAdvice(Session session) async {
+    return GridService.getGridAdvice();
   }
 
   Future<void> resolveEvent(Session session, int eventId) async {

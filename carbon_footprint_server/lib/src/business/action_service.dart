@@ -87,10 +87,11 @@ class ActionService {
           ));
 
           // Trigger Butler Celebration Event
+          final userName = user?.userName ?? "Friend";
           await ButlerEvent.db.insertRow(session, ButlerEvent(
             userId: userId,
             type: 'celebration',
-            message: 'Congratulations, sir/madam! You have earned the "$badgeName" honor. A truly noble achievement!',
+            message: 'Congratulations, $userName! You have earned the "$badgeName" honor. A truly noble achievement!',
             timestamp: now,
             isResolved: false,
           ));
@@ -116,10 +117,11 @@ class ActionService {
             iconType: 'budget',
           ));
 
+          final userName = user?.userName ?? "Friend";
           await ButlerEvent.db.insertRow(session, ButlerEvent(
             userId: userId,
             type: 'celebration',
-            message: 'An exemplary performance, sir/madam! You have mitigated over half of your monthly footprint. You are a true "Budget Master"!',
+            message: 'An exemplary performance, $userName! You have mitigated over half of your monthly footprint. You are a true "Budget Master"!',
             timestamp: now,
             isResolved: false,
           ));

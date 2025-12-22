@@ -10,7 +10,7 @@ class MorningBriefingScreen extends StatefulWidget {
 }
 
 class _MorningBriefingScreenState extends State<MorningBriefingScreen> with SingleTickerProviderStateMixin {
-  String _briefingText = "Good morning! I am preparing your environmental dossier for the day...";
+  String _briefingText = "Preparing your environmental dossier...";
   bool _isLoading = true;
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
@@ -18,6 +18,8 @@ class _MorningBriefingScreenState extends State<MorningBriefingScreen> with Sing
   @override
   void initState() {
     super.initState();
+    final userName = sessionManager.signedInUser?.userName ?? "Friend";
+    _briefingText = "Good morning, $userName! I am preparing your environmental dossier for the day...";
     _controller = AnimationController(vsync: this, duration: const Duration(seconds: 1));
     _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _fetchBriefing();
@@ -35,8 +37,9 @@ class _MorningBriefingScreenState extends State<MorningBriefingScreen> with Sing
       }
     } catch (e) {
       if (mounted) {
+        final userName = sessionManager.signedInUser?.userName ?? "Friend";
         setState(() {
-          _briefingText = "Good morning, sir/madam. Let us embark on another day of noble environmental preservation.";
+          _briefingText = "Good morning, $userName. Let us embark on another day of noble environmental preservation.";
           _isLoading = false;
         });
         _controller.forward();

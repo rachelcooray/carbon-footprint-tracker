@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:carbon_footprint_client/carbon_footprint_client.dart';
 import '../../main.dart';
 import '../widgets/glass_card.dart';
@@ -77,10 +78,23 @@ class _ButlerScreenState extends State<ButlerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    bool isDark = theme.brightness == Brightness.dark;
 
     return Container(
-      color: isDark ? const Color(0xFF121212) : const Color(0xFFF5F7F5),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: isDark ? [
+            const Color(0xFF0F1710),
+            const Color(0xFF050505),
+          ] : [
+            theme.colorScheme.surface,
+            theme.colorScheme.primary.withValues(alpha: 0.03),
+          ],
+        ),
+      ),
       child: Column(
         children: [
           Expanded(
@@ -90,7 +104,7 @@ class _ButlerScreenState extends State<ButlerScreen> {
                     ? _buildEmptyState()
                     : ListView.builder(
                         controller: _scrollController,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
                         itemCount: _messages.length,
                         itemBuilder: (context, index) {
                           return _buildMessageBubble(_messages[index], isDark);
@@ -109,71 +123,79 @@ class _ButlerScreenState extends State<ButlerScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(color: Colors.blueGrey.withValues(alpha: 0.1), shape: BoxShape.circle),
-            child: const Icon(Icons.face_retouching_natural, size: 60, color: Colors.blueGrey),
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1), 
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05), blurRadius: 20, spreadRadius: 10),
+              ],
+            ),
+            child: Icon(Icons.auto_awesome_rounded, size: 64, color: Theme.of(context).colorScheme.primary),
           ),
-          const SizedBox(height: 24),
-          const Text('I am at your service.', style: TextStyle(fontStyle: FontStyle.italic, fontSize: 16)),
-          const SizedBox(height: 8),
-          Text('How may I assist your eco-journey today?', style: TextStyle(color: Theme.of(context).hintColor)),
+          const SizedBox(height: 32),
+          Text('Your Butler is ready.', style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          Text('How may I assist your eco-journey today?', style: TextStyle(color: Theme.of(context).hintColor, fontSize: 14)),
         ],
       ),
     );
   }
 
   Widget _buildMessageBubble(ButlerMessage message, bool isDark) {
+    final theme = Theme.of(context);
     final isButler = message.isFromButler;
     
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         mainAxisAlignment: isButler ? MainAxisAlignment.start : MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (isButler) ...[
              CircleAvatar(
-              radius: 16,
-              backgroundColor: Colors.blueGrey.shade800,
-              child: const Icon(Icons.face_retouching_natural, size: 18, color: Colors.white),
+              radius: 18,
+              backgroundColor: theme.colorScheme.primaryContainer,
+              child: Icon(Icons.auto_awesome_rounded, size: 18, color: theme.colorScheme.primary),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 12),
           ],
           Flexible(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: isButler 
-                  ? (isDark ? Colors.blueGrey.shade900 : Colors.white)
-                  : Theme.of(context).primaryColor,
+                  ? (isDark ? const Color(0xFF1E261F) : Colors.white)
+                  : theme.colorScheme.primary,
                 borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(20),
-                  topRight: const Radius.circular(20),
-                  bottomLeft: Radius.circular(isButler ? 0 : 20),
-                  bottomRight: Radius.circular(isButler ? 20 : 0),
+                  topLeft: Radius.circular(isButler ? 4 : 24),
+                  topRight: Radius.circular(isButler ? 24 : 4),
+                  bottomLeft: const Radius.circular(24),
+                  bottomRight: const Radius.circular(24),
                 ),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 5, offset: const Offset(0, 2)),
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
                 ],
-                border: isButler ? Border.all(color: Colors.blueGrey.withValues(alpha: 0.1)) : null,
+                border: isButler ? Border.all(color: theme.colorScheme.onSurface.withValues(alpha: 0.05)) : null,
               ),
               child: Column(
-                crossAxisAlignment: isButler ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     message.text,
                     style: TextStyle(
-                      color: isButler ? (isDark ? Colors.white : Colors.black87) : Colors.white,
+                      color: isButler ? theme.colorScheme.onSurface : Colors.white,
                       fontSize: 15,
-                      height: 1.4,
+                      height: 1.5,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   Text(
                     '${message.timestamp.hour}:${message.timestamp.minute.toString().padLeft(2, '0')}',
                     style: TextStyle(
                       fontSize: 10, 
                       color: isButler ? Colors.grey : Colors.white70,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -181,11 +203,11 @@ class _ButlerScreenState extends State<ButlerScreen> {
             ),
           ),
           if (!isButler) ...[
-            const SizedBox(width: 8),
+            const SizedBox(width: 12),
              CircleAvatar(
-              radius: 16,
-              backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
-              child: const Icon(Icons.person, size: 18, color: Colors.green),
+              radius: 18,
+              backgroundColor: theme.colorScheme.secondaryContainer,
+              child: Icon(Icons.person_rounded, size: 18, color: theme.colorScheme.secondary),
             ),
           ],
         ],
@@ -194,11 +216,12 @@ class _ButlerScreenState extends State<ButlerScreen> {
   }
 
   Widget _buildInputArea() {
+    final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 40),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        boxShadow: [BoxShadow(color: Theme.of(context).shadowColor.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, -2))],
+        color: theme.colorScheme.surface,
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, -5))],
       ),
       child: Row(
         children: [
@@ -206,28 +229,33 @@ class _ButlerScreenState extends State<ButlerScreen> {
             child: TextField(
               controller: _controller,
               decoration: InputDecoration(
-                hintText: 'Summon your Butler...',
-                hintStyle: const TextStyle(fontSize: 14),
+                hintText: 'Message Butler...',
+                hintStyle: TextStyle(fontSize: 15, color: theme.hintColor.withValues(alpha: 0.5)),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(28),
+                  borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                fillColor: Theme.of(context).hintColor.withValues(alpha: 0.05),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                fillColor: theme.colorScheme.onSurface.withValues(alpha: 0.05),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               ),
               onSubmitted: (_) => _sendMessage(),
             ),
           ),
           const SizedBox(width: 12),
           Container(
+            height: 54,
+            width: 54,
             decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
+              color: theme.colorScheme.primary,
               shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(color: theme.colorScheme.primary.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 4)),
+              ],
             ),
             child: IconButton(
               onPressed: _sendMessage,
-              icon: const Icon(Icons.send, color: Colors.white, size: 20),
+              icon: const Icon(Icons.arrow_upward_rounded, color: Colors.white, size: 24),
             ),
           ),
         ],

@@ -270,7 +270,8 @@ class _SocialContentState extends State<SocialContent> {
     try {
       await client.community.joinGroup(groupId);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Welcome to the community, sir/madam!')));
+        final userName = sessionManager.signedInUser?.userName ?? "Friend";
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Welcome to the community, $userName!')));
         _fetchData();
       }
     } catch (e) {

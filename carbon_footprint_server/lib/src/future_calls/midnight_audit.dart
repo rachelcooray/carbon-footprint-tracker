@@ -1,0 +1,62 @@
+import 'package:serverpod/serverpod.dart';
+import 'package:serverpod_auth_server/serverpod_auth_server.dart';
+import '../generated/protocol.dart';
+import '../business/grid_service.dart';
+
+/// A future call that performs a proactive audit of user performance at midnight.
+/// It analyzes daily logs and creates a personalized ButlerEvent suggestion.
+class MidnightAudit extends FutureCall {
+  @override
+  Future<void> invoke(Session session, SerializableModel? object) async {
+    session.log('Starting Midnight Audit...', level: LogLevel.info);
+
+    // 1. Fetch all user profiles
+    final profiles = await UserProfile.db.find(session);
+
+    for (var profile in profiles) {
+      final userId = profile.userId;
+
+      // 2. Fetch logs for the last 24 hours
+      final yesterday = DateTime.now().subtract(const Duration(days: 1));
+      final logs = await ActionLog.db.find(
+        session,
+        where: (t) => t.userId.equals(userId) & (t.date > yesterday),
+      );
+
+      double totalSaved = 0;
+      Map<int, double> categoryImpact = {}; // ActionId -> Savings
+
+      for (var log in logs) {
+        totalSaved += log.co2Saved;
+        categoryImpact[log.actionId] = (categoryImpact[log.actionId] ?? 0) + log.co2Saved;
+      }
+
+      // 3. Generate Butler Verdict
+      final user = await Users.findUserByUserId(session, userId);
+      final userName = user?.userName ?? "Friend";
+
+      String verdict;
+      if (logs.isEmpty) {
+        verdict = 'I noticed a lack of eco-activity yesterday, $userName. Perhaps we could start fresh today with a brisk walk?';
+      } else if (totalSaved < 2.0) {
+        verdict = '$userName, a modest effort yesterday. I believe we can push our boundaries today, especially given the grid is currently ${GridService.getGridStatus().toLowerCase()}!';
+      } else {
+        verdict = 'Magnificent performance yesterday, $userName! You saved ${totalSaved.toStringAsFixed(1)}kg of CO2. Let us maintain this noble momentum.';
+      }
+
+      // 4. Create Butler Event
+      await ButlerEvent.db.insertRow(
+        session,
+        ButlerEvent(
+          userId: userId,
+          type: 'audit',
+          message: verdict,
+          timestamp: DateTime.now(),
+          isResolved: false,
+        ),
+      );
+    }
+
+    session.log('Midnight Audit completed for ${profiles.length} users.', level: LogLevel.info);
+  }
+}

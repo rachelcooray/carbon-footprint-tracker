@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Badge;
+import 'package:google_fonts/google_fonts.dart';
 import 'package:carbon_footprint_client/carbon_footprint_client.dart';
 import '../../main.dart';
 import '../widgets/glass_card.dart';
@@ -97,11 +98,11 @@ class _BadgesScreenState extends State<BadgesScreen> {
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
             colors: [
-              Theme.of(context).primaryColor.withValues(alpha: 0.05),
-              Theme.of(context).scaffoldBackgroundColor,
+              Theme.of(context).colorScheme.surface,
+              Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
             ],
           ),
         ),
@@ -127,15 +128,17 @@ class _BadgesScreenState extends State<BadgesScreen> {
   }
 
   Widget _buildBadgeCard(Map<String, String> definition, Badge? earned) {
+    final theme = Theme.of(context);
     final bool isLocked = earned == null;
-    final Color primaryColor = isLocked ? Colors.grey : Theme.of(context).primaryColor;
-    
+    final Color primaryColor = isLocked ? Colors.grey : theme.colorScheme.primary;
+    final Color glowColor = isLocked ? Colors.transparent : theme.colorScheme.tertiary;
+
     return GlassCard(
-      opacity: isLocked ? 0.02 : 0.05,
+      opacity: isLocked ? 0.02 : 0.08,
       child: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -146,43 +149,50 @@ class _BadgesScreenState extends State<BadgesScreen> {
                     shape: BoxShape.circle,
                     boxShadow: isLocked ? null : [
                       BoxShadow(
-                        color: primaryColor.withValues(alpha: 0.2),
-                        blurRadius: 10,
+                        color: glowColor.withValues(alpha: 0.3),
+                        blurRadius: 15,
                         spreadRadius: 2,
                       )
                     ]
                   ),
                   child: Icon(
                     _getIcon(definition['iconType']),
-                    size: 32,
-                    color: primaryColor,
+                    size: 36,
+                    color: isLocked ? Colors.grey : theme.colorScheme.tertiary,
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 Text(
                   definition['name']!,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: GoogleFonts.outfit(
                     fontWeight: FontWeight.bold, 
-                    fontSize: 14, 
-                    color: isLocked ? Colors.grey : Theme.of(context).textTheme.titleLarge?.color
+                    fontSize: 15, 
+                    color: isLocked ? Colors.grey : theme.colorScheme.onSurface,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Text(
                   isLocked ? definition['hint']! : definition['description']!,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 10, 
-                    color: isLocked ? Colors.grey.withValues(alpha: 0.7) : Theme.of(context).textTheme.bodySmall?.color,
+                    fontSize: 11, 
+                    color: isLocked ? Colors.grey.withValues(alpha: 0.6) : theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     fontStyle: isLocked ? FontStyle.italic : null,
                   ),
                 ),
                 if (!isLocked) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    'Earned: ${DateFormat.yMMMd().format(earned.earnedDate)}',
-                    style: TextStyle(fontSize: 9, color: Theme.of(context).primaryColor.withValues(alpha: 0.7)),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'EARNED',
+                      style: GoogleFonts.outfit(fontSize: 8, fontWeight: FontWeight.bold, color: theme.colorScheme.primary, letterSpacing: 1),
+                    ),
                   ),
                 ],
               ],
@@ -190,9 +200,9 @@ class _BadgesScreenState extends State<BadgesScreen> {
           ),
           if (isLocked)
             Positioned(
-              top: 8,
-              right: 8,
-              child: Icon(Icons.lock_outline, size: 16, color: Colors.grey.withValues(alpha: 0.5)),
+              top: 12,
+              right: 12,
+              child: Icon(Icons.lock_rounded, size: 14, color: Colors.grey.withValues(alpha: 0.4)),
             ),
         ],
       ),

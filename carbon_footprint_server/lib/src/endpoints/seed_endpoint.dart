@@ -1,4 +1,5 @@
 import 'package:serverpod/serverpod.dart';
+import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import '../generated/protocol.dart';
 import 'dart:math';
 
@@ -72,10 +73,12 @@ class SeedEndpoint extends Endpoint {
           where: (t) => t.userId.equals(userInfo.userId) & t.isResolved.equals(false),
         );
         if (existingSuggestion == null) {
+          final user = await Users.findUserByUserId(session, userInfo.userId);
+          final userName = user?.userName ?? "Friend";
           await ButlerEvent.db.insertRow(session, ButlerEvent(
             userId: userInfo.userId,
             type: 'suggestion',
-            message: 'I noticed it\'s a beautiful day for a bike ride, sir. Shall I prepare a log for your commute?',
+            message: 'I noticed it\'s a beautiful day for a bike ride, $userName. Shall I prepare a log for your commute?',
             timestamp: DateTime.now(),
             isResolved: false,
           ));
@@ -116,7 +119,40 @@ class SeedEndpoint extends Endpoint {
         ));
       }
 
-      return 'Seeding successful! Butler is ready to serve and the community is thriving.';
+      // 7. Deep Clean: Update existing "sir/madam" references in database
+      if (userInfo != null) {
+        final profile = await UserProfile.db.findFirstRow(session, where: (t) => t.userId.equals(userInfo.userId));
+        final user = await Users.findUserByUserId(session, userInfo.userId);
+        final userName = user?.userName ?? "Friend";
+
+        // Update existing ButlerEvents
+        final events = await ButlerEvent.db.find(session, where: (t) => t.userId.equals(userInfo.userId));
+        for (var event in events) {
+          if (event.message.contains('sir') || event.message.contains('madam')) {
+            event.message = event.message
+              .replaceAll('sir/madam', userName)
+              .replaceAll('madam/sir', userName)
+              .replaceAll('sir', userName)
+              .replaceAll('madam', userName);
+            await ButlerEvent.db.updateRow(session, event);
+          }
+        }
+
+        // Update existing ButlerMessages
+        final messages = await ButlerMessage.db.find(session, where: (t) => t.userId.equals(userInfo.userId));
+        for (var msg in messages) {
+          if (msg.text.contains('sir') || msg.text.contains('madam')) {
+            msg.text = msg.text
+              .replaceAll('sir/madam', userName)
+              .replaceAll('madam/sir', userName)
+              .replaceAll('sir', userName)
+              .replaceAll('madam', userName);
+            await ButlerMessage.db.updateRow(session, msg);
+          }
+        }
+      }
+
+      return 'Seeding successful! Butler is ready to serve, and the database has been personalized for $userInfo.';
     } catch (e) {
       print('ERROR in seedData: $e');
       return 'Error seeding data: $e';

@@ -175,6 +175,26 @@ class Endpoints extends _i1.EndpointDispatch {
               (endpoints['butler'] as _i3.ButlerEndpoint)
                   .generateDailyBriefing(session),
         ),
+        'getGridStatus': _i1.MethodConnector(
+          name: 'getGridStatus',
+          params: {},
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['butler'] as _i3.ButlerEndpoint)
+                  .getGridStatus(session),
+        ),
+        'getGridAdvice': _i1.MethodConnector(
+          name: 'getGridAdvice',
+          params: {},
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['butler'] as _i3.ButlerEndpoint)
+                  .getGridAdvice(session),
+        ),
         'resolveEvent': _i1.MethodConnector(
           name: 'resolveEvent',
           params: {
@@ -437,6 +457,16 @@ class Endpoints extends _i1.EndpointDispatch {
             session,
             params['budget'],
           ),
+        ),
+        'getEcotrajectory': _i1.MethodConnector(
+          name: 'getEcotrajectory',
+          params: {},
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['stats'] as _i9.StatsEndpoint)
+                  .getEcotrajectory(session),
         ),
       },
     );

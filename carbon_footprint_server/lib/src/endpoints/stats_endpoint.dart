@@ -1,6 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import '../generated/protocol.dart';
+import '../business/projection_service.dart';
 
 class StatsEndpoint extends Endpoint {
   Future<UserStats> getUserStats(Session session, int dummyId) async {
@@ -114,13 +115,29 @@ class StatsEndpoint extends Endpoint {
         iconType: 'strategy',
       ));
 
+      final user = await Users.findUserByUserId(session, userId);
+      final userName = user?.userName ?? "Friend";
       await ButlerEvent.db.insertRow(session, ButlerEvent(
         userId: userId,
         type: 'celebration',
-        message: 'Magnificent, sir/madam! You have established a strategic baseline for our mission. The "Strategist" honor is yours!',
+        message: 'Magnificent, $userName! You have established a strategic baseline for our mission. The "Strategist" honor is yours!',
         timestamp: DateTime.now(),
         isResolved: false,
       ));
     }
+  }
+
+  Future<Ecotrajectory> getEcotrajectory(Session session) async {
+    final userInfo = await session.authenticated;
+    if (userInfo == null) {
+      return Ecotrajectory(
+        netZeroDate: DateTime.now().add(const Duration(days: 3650)),
+        savingsRate: 0,
+        isAchievable: false,
+        daysToNetZero: 3650,
+        currentCarbonDebt: 2400.0,
+      );
+    }
+    return await ProjectionService.calculateTrajectory(session, userInfo.userId);
   }
 }

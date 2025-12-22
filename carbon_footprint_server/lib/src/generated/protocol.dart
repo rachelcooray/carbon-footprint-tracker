@@ -21,24 +21,25 @@ import 'challenge.dart' as _i9;
 import 'challenge_progress.dart' as _i10;
 import 'community_group.dart' as _i11;
 import 'eco_action.dart' as _i12;
-import 'group_member.dart' as _i13;
-import 'social_post.dart' as _i14;
-import 'user_profile.dart' as _i15;
-import 'user_stats.dart' as _i16;
-import 'package:carbon_footprint_server/src/generated/action_log.dart' as _i17;
+import 'ecotrajectory.dart' as _i13;
+import 'group_member.dart' as _i14;
+import 'social_post.dart' as _i15;
+import 'user_profile.dart' as _i16;
+import 'user_stats.dart' as _i17;
+import 'package:carbon_footprint_server/src/generated/action_log.dart' as _i18;
 import 'package:carbon_footprint_server/src/generated/butler_message.dart'
-    as _i18;
-import 'package:carbon_footprint_server/src/generated/butler_event.dart'
     as _i19;
-import 'package:carbon_footprint_server/src/generated/challenge_progress.dart'
+import 'package:carbon_footprint_server/src/generated/butler_event.dart'
     as _i20;
-import 'package:carbon_footprint_server/src/generated/community_group.dart'
+import 'package:carbon_footprint_server/src/generated/challenge_progress.dart'
     as _i21;
-import 'package:carbon_footprint_server/src/generated/eco_action.dart' as _i22;
-import 'package:carbon_footprint_server/src/generated/social_post.dart' as _i23;
+import 'package:carbon_footprint_server/src/generated/community_group.dart'
+    as _i22;
+import 'package:carbon_footprint_server/src/generated/eco_action.dart' as _i23;
+import 'package:carbon_footprint_server/src/generated/social_post.dart' as _i24;
 import 'package:carbon_footprint_server/src/generated/user_profile.dart'
-    as _i24;
-import 'package:carbon_footprint_server/src/generated/badge.dart' as _i25;
+    as _i25;
+import 'package:carbon_footprint_server/src/generated/badge.dart' as _i26;
 export 'greeting.dart';
 export 'action_log.dart';
 export 'badge.dart';
@@ -48,6 +49,7 @@ export 'challenge.dart';
 export 'challenge_progress.dart';
 export 'community_group.dart';
 export 'eco_action.dart';
+export 'ecotrajectory.dart';
 export 'group_member.dart';
 export 'social_post.dart';
 export 'user_profile.dart';
@@ -750,17 +752,20 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i12.EcoAction) {
       return _i12.EcoAction.fromJson(data) as T;
     }
-    if (t == _i13.GroupMember) {
-      return _i13.GroupMember.fromJson(data) as T;
+    if (t == _i13.Ecotrajectory) {
+      return _i13.Ecotrajectory.fromJson(data) as T;
     }
-    if (t == _i14.SocialPost) {
-      return _i14.SocialPost.fromJson(data) as T;
+    if (t == _i14.GroupMember) {
+      return _i14.GroupMember.fromJson(data) as T;
     }
-    if (t == _i15.UserProfile) {
-      return _i15.UserProfile.fromJson(data) as T;
+    if (t == _i15.SocialPost) {
+      return _i15.SocialPost.fromJson(data) as T;
     }
-    if (t == _i16.UserStats) {
-      return _i16.UserStats.fromJson(data) as T;
+    if (t == _i16.UserProfile) {
+      return _i16.UserProfile.fromJson(data) as T;
+    }
+    if (t == _i17.UserStats) {
+      return _i17.UserStats.fromJson(data) as T;
     }
     if (t == _i1.getType<_i4.Greeting?>()) {
       return (data != null ? _i4.Greeting.fromJson(data) : null) as T;
@@ -789,57 +794,60 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i1.getType<_i12.EcoAction?>()) {
       return (data != null ? _i12.EcoAction.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i13.GroupMember?>()) {
-      return (data != null ? _i13.GroupMember.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i13.Ecotrajectory?>()) {
+      return (data != null ? _i13.Ecotrajectory.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i14.SocialPost?>()) {
-      return (data != null ? _i14.SocialPost.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i14.GroupMember?>()) {
+      return (data != null ? _i14.GroupMember.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i15.UserProfile?>()) {
-      return (data != null ? _i15.UserProfile.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i15.SocialPost?>()) {
+      return (data != null ? _i15.SocialPost.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i16.UserStats?>()) {
-      return (data != null ? _i16.UserStats.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i16.UserProfile?>()) {
+      return (data != null ? _i16.UserProfile.fromJson(data) : null) as T;
     }
-    if (t == List<_i17.ActionLog>) {
-      return (data as List).map((e) => deserialize<_i17.ActionLog>(e)).toList()
+    if (t == _i1.getType<_i17.UserStats?>()) {
+      return (data != null ? _i17.UserStats.fromJson(data) : null) as T;
+    }
+    if (t == List<_i18.ActionLog>) {
+      return (data as List).map((e) => deserialize<_i18.ActionLog>(e)).toList()
           as T;
     }
-    if (t == List<_i18.ButlerMessage>) {
+    if (t == List<_i19.ButlerMessage>) {
       return (data as List)
-          .map((e) => deserialize<_i18.ButlerMessage>(e))
+          .map((e) => deserialize<_i19.ButlerMessage>(e))
           .toList() as T;
     }
-    if (t == List<_i19.ButlerEvent>) {
+    if (t == List<_i20.ButlerEvent>) {
       return (data as List)
-          .map((e) => deserialize<_i19.ButlerEvent>(e))
+          .map((e) => deserialize<_i20.ButlerEvent>(e))
           .toList() as T;
     }
-    if (t == List<_i20.ChallengeProgress>) {
+    if (t == List<_i21.ChallengeProgress>) {
       return (data as List)
-          .map((e) => deserialize<_i20.ChallengeProgress>(e))
+          .map((e) => deserialize<_i21.ChallengeProgress>(e))
           .toList() as T;
     }
-    if (t == List<_i21.CommunityGroup>) {
+    if (t == List<_i22.CommunityGroup>) {
       return (data as List)
-          .map((e) => deserialize<_i21.CommunityGroup>(e))
+          .map((e) => deserialize<_i22.CommunityGroup>(e))
           .toList() as T;
     }
-    if (t == List<_i22.EcoAction>) {
-      return (data as List).map((e) => deserialize<_i22.EcoAction>(e)).toList()
+    if (t == List<_i23.EcoAction>) {
+      return (data as List).map((e) => deserialize<_i23.EcoAction>(e)).toList()
           as T;
     }
-    if (t == List<_i23.SocialPost>) {
-      return (data as List).map((e) => deserialize<_i23.SocialPost>(e)).toList()
+    if (t == List<_i24.SocialPost>) {
+      return (data as List).map((e) => deserialize<_i24.SocialPost>(e)).toList()
           as T;
     }
-    if (t == List<_i24.UserProfile>) {
+    if (t == List<_i25.UserProfile>) {
       return (data as List)
-          .map((e) => deserialize<_i24.UserProfile>(e))
+          .map((e) => deserialize<_i25.UserProfile>(e))
           .toList() as T;
     }
-    if (t == List<_i25.Badge>) {
-      return (data as List).map((e) => deserialize<_i25.Badge>(e)).toList()
+    if (t == List<_i26.Badge>) {
+      return (data as List).map((e) => deserialize<_i26.Badge>(e)).toList()
           as T;
     }
     try {
@@ -882,16 +890,19 @@ class Protocol extends _i1.SerializationManagerServer {
     if (data is _i12.EcoAction) {
       return 'EcoAction';
     }
-    if (data is _i13.GroupMember) {
+    if (data is _i13.Ecotrajectory) {
+      return 'Ecotrajectory';
+    }
+    if (data is _i14.GroupMember) {
       return 'GroupMember';
     }
-    if (data is _i14.SocialPost) {
+    if (data is _i15.SocialPost) {
       return 'SocialPost';
     }
-    if (data is _i15.UserProfile) {
+    if (data is _i16.UserProfile) {
       return 'UserProfile';
     }
-    if (data is _i16.UserStats) {
+    if (data is _i17.UserStats) {
       return 'UserStats';
     }
     className = _i2.Protocol().getClassNameForObject(data);
@@ -938,17 +949,20 @@ class Protocol extends _i1.SerializationManagerServer {
     if (dataClassName == 'EcoAction') {
       return deserialize<_i12.EcoAction>(data['data']);
     }
+    if (dataClassName == 'Ecotrajectory') {
+      return deserialize<_i13.Ecotrajectory>(data['data']);
+    }
     if (dataClassName == 'GroupMember') {
-      return deserialize<_i13.GroupMember>(data['data']);
+      return deserialize<_i14.GroupMember>(data['data']);
     }
     if (dataClassName == 'SocialPost') {
-      return deserialize<_i14.SocialPost>(data['data']);
+      return deserialize<_i15.SocialPost>(data['data']);
     }
     if (dataClassName == 'UserProfile') {
-      return deserialize<_i15.UserProfile>(data['data']);
+      return deserialize<_i16.UserProfile>(data['data']);
     }
     if (dataClassName == 'UserStats') {
-      return deserialize<_i16.UserStats>(data['data']);
+      return deserialize<_i17.UserStats>(data['data']);
     }
     if (dataClassName.startsWith('serverpod.')) {
       data['className'] = dataClassName.substring(10);
@@ -990,12 +1004,12 @@ class Protocol extends _i1.SerializationManagerServer {
         return _i11.CommunityGroup.t;
       case _i12.EcoAction:
         return _i12.EcoAction.t;
-      case _i13.GroupMember:
-        return _i13.GroupMember.t;
-      case _i14.SocialPost:
-        return _i14.SocialPost.t;
-      case _i15.UserProfile:
-        return _i15.UserProfile.t;
+      case _i14.GroupMember:
+        return _i14.GroupMember.t;
+      case _i15.SocialPost:
+        return _i15.SocialPost.t;
+      case _i16.UserProfile:
+        return _i16.UserProfile.t;
     }
     return null;
   }
