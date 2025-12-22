@@ -361,10 +361,19 @@ class _DashboardContentState extends State<DashboardContent> {
                   Expanded(
                     child: TextButton(
                       style: TextButton.styleFrom(foregroundColor: Colors.white70),
-                      onPressed: () {
-                        setState(() {
-                          _butlerEvents.remove(event);
-                        });
+                      onPressed: () async {
+                        try {
+                          await client.butler.resolveEvent(event.id!);
+                          if (mounted) {
+                            setState(() {
+                              _butlerEvents.remove(event);
+                            });
+                          }
+                        } catch (e) {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error resolving suggestion: $e')));
+                          }
+                        }
                       },
                       child: const Text('Maybe later'),
                     ),
@@ -378,12 +387,21 @@ class _DashboardContentState extends State<DashboardContent> {
                         elevation: 0,
                       ),
                       onPressed: () async {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Working on it, sir!')));
-                        await client.butler.sendMessage('Confirmed: ${event.message}');
-                        setState(() {
-                          _butlerEvents.remove(event);
-                        });
-                        _fetchData();
+                        try {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Working on it, sir!')));
+                          await client.butler.sendMessage('Confirmed: ${event.message}');
+                          await client.butler.resolveEvent(event.id!); // Mark as resolved persistently
+                          if (mounted) {
+                            setState(() {
+                              _butlerEvents.remove(event);
+                            });
+                            _fetchData();
+                          }
+                        } catch (e) {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                          }
+                        }
                       },
                       child: const Text('Make it so'),
                     ),

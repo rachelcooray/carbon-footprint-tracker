@@ -165,4 +165,15 @@ class ButlerEndpoint extends Endpoint {
       return "Good morning, sir/madam. I have your schedule ready for a green day ahead.";
     }
   }
+
+  Future<void> resolveEvent(Session session, int eventId) async {
+    final userInfo = await session.authenticated;
+    if (userInfo == null) return;
+
+    final event = await ButlerEvent.db.findById(session, eventId);
+    if (event != null && event.userId == userInfo.userId) {
+      event.isResolved = true;
+      await ButlerEvent.db.updateRow(session, event);
+    }
+  }
 }

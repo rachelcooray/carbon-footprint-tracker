@@ -6,6 +6,7 @@ butler:
   - sendMessage:
   - getActiveSuggestions:
   - generateDailyBriefing:
+  - resolveEvent:
 challenge:
   - getUserChallenges:
 community:

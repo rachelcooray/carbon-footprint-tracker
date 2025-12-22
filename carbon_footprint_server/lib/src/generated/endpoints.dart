@@ -175,6 +175,24 @@ class Endpoints extends _i1.EndpointDispatch {
               (endpoints['butler'] as _i3.ButlerEndpoint)
                   .generateDailyBriefing(session),
         ),
+        'resolveEvent': _i1.MethodConnector(
+          name: 'resolveEvent',
+          params: {
+            'eventId': _i1.ParameterDescription(
+              name: 'eventId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            )
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['butler'] as _i3.ButlerEndpoint).resolveEvent(
+            session,
+            params['eventId'],
+          ),
+        ),
       },
     );
     connectors['challenge'] = _i1.EndpointConnector(

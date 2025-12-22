@@ -83,6 +83,12 @@ class EndpointButler extends _i1.EndpointRef {
         'generateDailyBriefing',
         {},
       );
+
+  _i2.Future<void> resolveEvent(int eventId) => caller.callServerEndpoint<void>(
+        'butler',
+        'resolveEvent',
+        {'eventId': eventId},
+      );
 }
 
 /// {@category Endpoint}
