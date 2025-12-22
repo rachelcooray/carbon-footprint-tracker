@@ -184,7 +184,7 @@ class _ButlerScreenState extends State<ButlerScreen> {
                   Text(
                     message.text,
                     style: TextStyle(
-                      color: isButler ? theme.colorScheme.onSurface : Colors.white,
+                      color: isButler ? theme.colorScheme.onSurface : theme.colorScheme.onPrimary,
                       fontSize: 15,
                       height: 1.5,
                     ),
@@ -194,7 +194,7 @@ class _ButlerScreenState extends State<ButlerScreen> {
                     '${message.timestamp.hour}:${message.timestamp.minute.toString().padLeft(2, '0')}',
                     style: TextStyle(
                       fontSize: 10, 
-                      color: isButler ? Colors.grey : Colors.white70,
+                      color: isButler ? Colors.grey : theme.colorScheme.onPrimary.withValues(alpha: 0.7),
                       fontWeight: FontWeight.w500,
                     ),
                   ),

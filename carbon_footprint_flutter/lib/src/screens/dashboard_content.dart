@@ -83,6 +83,7 @@ class _DashboardContentState extends State<DashboardContent> {
     }
 
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final ecoScore = _stats?.ecoScore ?? 0;
     final spots = _recentActions.asMap().entries.map((e) {
       return FlSpot(e.key.toDouble(), e.value.co2Saved);
@@ -114,10 +115,14 @@ class _DashboardContentState extends State<DashboardContent> {
                 ],
               ),
               child: GlassCard(
-                gradientColors: [
+                gradientColors: isDark ? [
                   theme.colorScheme.primary,
                   theme.colorScheme.secondary,
                   theme.colorScheme.tertiary.withValues(alpha: 0.8),
+                ] : [
+                  theme.colorScheme.primary,
+                  theme.colorScheme.secondary,
+                  theme.colorScheme.tertiary.withValues(alpha: 0.9), // Gold/Yellow accent
                 ],
                 child: Padding(
                   padding: const EdgeInsets.all(24),
@@ -264,7 +269,10 @@ class _DashboardContentState extends State<DashboardContent> {
                       child: Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [Colors.black.withValues(alpha: 0.7), Colors.transparent],
+                            colors: [
+                              Colors.black.withValues(alpha: isDark ? 0.7 : 0.85), 
+                              Colors.transparent
+                            ],
                             begin: Alignment.bottomCenter,
                             end: Alignment.topCenter,
                           ),
@@ -301,6 +309,8 @@ class _DashboardContentState extends State<DashboardContent> {
   }
 
   void _showForestAnalysis() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final score = _stats?.ecoScore ?? 0;
     String statusTitle = "Fledgling Woods";
     String analysis = "Your journey is just beginning! With every eco-action, we shall plant more life into this landscape.";
@@ -329,6 +339,7 @@ class _DashboardContentState extends State<DashboardContent> {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => GlassCard(
+        opacity: isDark ? 0.05 : 0.15,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         child: Padding(
           padding: const EdgeInsets.all(32),
@@ -341,11 +352,15 @@ class _DashboardContentState extends State<DashboardContent> {
                 decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)),
               ),
               const SizedBox(height: 24),
-              Icon(statusIcon, color: Colors.greenAccent, size: 64),
+              Icon(statusIcon, color: isDark ? Colors.greenAccent : theme.colorScheme.primary, size: 64),
               const SizedBox(height: 16),
-              Text(statusTitle, style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+              Text(statusTitle, style: TextStyle(
+                color: isDark ? Colors.white : Colors.white, 
+                fontSize: 28, 
+                fontWeight: FontWeight.bold
+              )),
               const SizedBox(height: 8),
-              Text('Rank Score: $score', style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.w500)),
+              Text('Rank Score: $score', style: TextStyle(color: isDark ? Colors.greenAccent : Colors.greenAccent[100], fontWeight: FontWeight.w500)),
               const SizedBox(height: 24),
               
               // Progress Bar
@@ -355,8 +370,8 @@ class _DashboardContentState extends State<DashboardContent> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Growth to Next Stage', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                      Text('${(progress * 100).toInt()}%', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      Text('Growth to Next Stage', style: TextStyle(color: isDark ? Colors.white70 : Colors.greenAccent[100], fontSize: 13, fontWeight: FontWeight.w500)),
+                      Text('${(progress * 100).toInt()}%', style: TextStyle(color: isDark ? Colors.white : Colors.greenAccent[100], fontWeight: FontWeight.bold)),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -364,14 +379,14 @@ class _DashboardContentState extends State<DashboardContent> {
                     borderRadius: BorderRadius.circular(10),
                     child: LinearProgressIndicator(
                       value: progress,
-                      backgroundColor: Colors.white10,
-                      color: Colors.greenAccent,
+                      backgroundColor: isDark ? Colors.white10 : theme.colorScheme.onSurface.withValues(alpha: 0.1),
+                      color: isDark ? Colors.greenAccent : theme.colorScheme.primary,
                       minHeight: 10,
                     ),
                   ),
                   const SizedBox(height: 12),
                   Text('Next Rank: ${nextGoal == 1000 ? "Verdurous Grove" : "Emerald Sanctuary"}', 
-                      style: const TextStyle(color: Colors.white54, fontSize: 11, fontStyle: FontStyle.italic)),
+                      style: TextStyle(color: isDark ? Colors.white70 : Colors.white, fontSize: 13, fontWeight: FontWeight.w500, fontStyle: FontStyle.italic)),
                 ],
               ),
               
@@ -379,7 +394,13 @@ class _DashboardContentState extends State<DashboardContent> {
               Text(
                 analysis,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white, fontSize: 16, height: 1.5),
+                style: TextStyle(
+                  color: isDark ? Colors.white : Colors.greenAccent[100], 
+                  fontSize: 16, 
+                  height: 1.5,
+                  fontWeight: isDark ? FontWeight.w600 : FontWeight.normal,
+                  shadows: isDark ? [] : [const Shadow(blurRadius: 2, color: Colors.black26)],
+                ),
               ),
               const SizedBox(height: 24),
               
@@ -396,8 +417,8 @@ class _DashboardContentState extends State<DashboardContent> {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white, 
-                    foregroundColor: Colors.black,
+                    backgroundColor: theme.colorScheme.primary, 
+                    foregroundColor: theme.colorScheme.onPrimary,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
@@ -413,17 +434,21 @@ class _DashboardContentState extends State<DashboardContent> {
   }
 
   Widget _buildForestStat(IconData icon, String value, String label) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Column(
       children: [
-        Icon(icon, color: Colors.greenAccent, size: 32),
+        Icon(icon, color: isDark ? Colors.greenAccent : theme.colorScheme.primary, size: 32),
         const SizedBox(height: 8),
         Text(value, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-        Text(label, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+        Text(label, style: const TextStyle(color: Colors.white70, fontSize: 13)),
       ],
     );
   }
 
   Widget _buildMiniStat(IconData icon, String label, String value) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Column(
       children: [
         Icon(icon, color: Colors.white, size: 20),
@@ -435,6 +460,8 @@ class _DashboardContentState extends State<DashboardContent> {
   }
 
   Widget _buildTipCard(String tip) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return GlassCard(
       opacity: 0.05,
       gradientColors: [Colors.orange.withValues(alpha: 0.1), Colors.orange.withValues(alpha: 0.05)],
@@ -445,13 +472,14 @@ class _DashboardContentState extends State<DashboardContent> {
           child: const Icon(Icons.lightbulb, color: Colors.orange),
         ),
         title: Text('Tip of the Day', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor)),
-        subtitle: Text(tip, style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color)),
+        subtitle: Text(tip, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
       ),
     );
   }
 
   Widget _buildImpactCard({required double totalCo2Saved}) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final trees = (totalCo2Saved / 5.0).toStringAsFixed(1);
     
     return GlassCard(
@@ -471,7 +499,7 @@ class _DashboardContentState extends State<DashboardContent> {
             const SizedBox(height: 8),
             Text(
               trees,
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: theme.colorScheme.primary, letterSpacing: -1),
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: isDark ? theme.colorScheme.primary : (Colors.green[800] ?? Colors.green), letterSpacing: -1),
             ),
             const Text('Trees Equivalent', style: TextStyle(fontSize: 10, color: Colors.grey), textAlign: TextAlign.center),
           ],
@@ -639,6 +667,8 @@ class _DashboardContentState extends State<DashboardContent> {
   }
 
   Widget _buildEnvisioningSimulator() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     // Math for impacts
     // Solar: avg household uses 10k kWh/year, 1kWh ~ 0.4kg CO2. Solar saves up to 80% (4000kg).
     double co2SavedSolar = _solarValue * 4000;
@@ -677,7 +707,7 @@ class _DashboardContentState extends State<DashboardContent> {
               ],
             ),
             const SizedBox(height: 8),
-            Text(butlerVerdict, style: const TextStyle(fontSize: 13, color: Colors.white70, fontStyle: FontStyle.italic)),
+            Text(butlerVerdict, style: TextStyle(fontSize: 13, color: isDark ? Colors.white70 : theme.colorScheme.onSurface.withValues(alpha: 0.7), fontStyle: FontStyle.italic)),
             const SizedBox(height: 24),
             
             // Solar Slider
@@ -709,7 +739,7 @@ class _DashboardContentState extends State<DashboardContent> {
                       Icons.trending_down, 
                       'Potential CO2 Saved', 
                       '${totalCo2Saved.toInt()} kg/yr',
-                      Colors.greenAccent,
+                      isDark ? Colors.greenAccent : theme.colorScheme.primary,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -737,6 +767,9 @@ class _DashboardContentState extends State<DashboardContent> {
     required String displayValue, 
     required ValueChanged<double> onChanged
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -745,12 +778,12 @@ class _DashboardContentState extends State<DashboardContent> {
           children: [
             Row(
               children: [
-                Icon(icon, size: 18, color: Colors.white60),
+                Icon(icon, size: 18, color: isDark ? Colors.white60 : theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                 const SizedBox(width: 8),
-                Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                Text(label, style: TextStyle(color: isDark ? Colors.white : theme.colorScheme.onSurface, fontWeight: FontWeight.w500)),
               ],
             ),
-            Text(displayValue, style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold)),
+            Text(displayValue, style: TextStyle(color: isDark ? Colors.greenAccent : theme.colorScheme.primary, fontWeight: FontWeight.bold)),
           ],
         ),
         SliderTheme(
@@ -762,8 +795,8 @@ class _DashboardContentState extends State<DashboardContent> {
           child: Slider(
             value: value,
             onChanged: onChanged,
-            activeColor: Colors.greenAccent,
-            inactiveColor: Colors.white10,
+            activeColor: isDark ? Colors.greenAccent : theme.colorScheme.primary,
+            inactiveColor: isDark ? Colors.white10 : theme.colorScheme.onSurface.withValues(alpha: 0.1),
           ),
         ),
       ],
@@ -771,6 +804,9 @@ class _DashboardContentState extends State<DashboardContent> {
   }
 
   Widget _buildImpactMetric(IconData icon, String label, String value, Color color) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -784,7 +820,7 @@ class _DashboardContentState extends State<DashboardContent> {
           Icon(icon, color: color, size: 20),
           const SizedBox(height: 8),
           Text(label, style: TextStyle(color: color.withValues(alpha: 0.7), fontSize: 10, fontWeight: FontWeight.bold)),
-          Text(value, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w900)),
+          Text(value, style: TextStyle(color: isDark ? Colors.white : theme.colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w900)),
         ],
       ),
     );

@@ -94,10 +94,10 @@ class _SocialContentState extends State<SocialContent> {
         children: [
           const Text('GLOBAL IMPACT', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2)),
           const SizedBox(height: 8),
-          Text('${_globalImpact.toStringAsFixed(1)} kg CO2 SAVED', 
-            style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w900, letterSpacing: -1)),
-          const SizedBox(height: 4),
           const Text('across our global community!', style: TextStyle(color: Colors.white70, fontSize: 13)),
+          const SizedBox(height: 12),
+          Text('${_globalImpact.toStringAsFixed(1)} kg CO2 SAVED', 
+            style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: -1)),
         ],
       ),
     );

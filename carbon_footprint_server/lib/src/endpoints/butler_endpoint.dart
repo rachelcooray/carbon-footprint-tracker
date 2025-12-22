@@ -18,7 +18,7 @@ class ButlerEndpoint extends Endpoint {
     }
 
     return GenerativeModel(
-      model: 'gemini-2.5-flash-lite', 
+      model: 'gemini-2.5-flash-tts', 
       apiKey: apiKey,
       systemInstruction: Content.system(
         'You are the Eco Butler — a formal, exceptionally polite assistant for a Carbon Footprint Tracking app. Always refer to the user as "$userName." Never use generic addresses like "sir" or "madam".\n\n'
@@ -159,9 +159,12 @@ class ButlerEndpoint extends Endpoint {
     final profile = await UserProfile.db.findFirstRow(session, where: (t) => t.userId.equals(userId));
     final gridAdvice = GridService.getGridAdvice();
     
-    final prompt = 'User Level: ${profile?.level ?? 1}, Eco Score: ${profile?.ecoScore ?? 0}, Streak: ${profile?.streakDays ?? 0}. '
-        'Grid Awareness Info: $gridAdvice. '
-        'Generate a formal, exceptionally polite morning briefing (max 3 sentences) greeting the user as $userName and encouraging them to take one specific action based on the current grid status.';
+    final prompt = 'User Data: Level ${profile?.level ?? 1}, Eco Score ${profile?.ecoScore ?? 0}, Streak ${profile?.streakDays ?? 0}. '
+        'Energy Grid Status: $gridAdvice. '
+        'Generate a formal, exceptionally polite morning briefing (max 3 sentences) for $userName. '
+        'STYLE RULES: Randomly select a tone: Philosophical (nature-focused), Technical (grid/metrics focused), Celebratory (streak/level focused), or Encouraging (warm/supportive). '
+        'STRUCTURE RULES: Each briefing must follow a different pattern: [Greeting + Impact Stat + Personal Tip], [Insight + Encouragement + Action Quest], or [Reflection + Grid Warning + Kind Suggestion]. '
+        'Always maintain the refined "Eco Butler" persona, never use "sir" or "madam", and ensure this briefing is strikingly different from any other.';
     
     if (model == null) return "I apologize, $userName, but my generative facilities are offline.";
     

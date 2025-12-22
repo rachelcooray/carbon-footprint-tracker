@@ -65,7 +65,27 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_getTitle()),
+        title: Row(
+          children: [
+            Icon(Icons.eco_rounded, color: Theme.of(context).colorScheme.primary, size: 28),
+            const SizedBox(width: 8),
+            RichText(
+              text: TextSpan(
+                style: GoogleFonts.outfit(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: 22,
+                ),
+                children: [
+                  const TextSpan(text: 'Carbon '),
+                  TextSpan(
+                    text: 'Footprint', 
+                    style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
         actions: [
           _buildThemeToggle(),
           IconButton(
@@ -125,7 +145,7 @@ class _MainScreenState extends State<MainScreen> {
                 if (result == true) setState(() {});
               },
               backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
               elevation: 4,
               label: Text('LOG ACTION', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, letterSpacing: 1)),
               icon: const Icon(Icons.add_rounded),
@@ -134,16 +154,6 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  String _getTitle() {
-    switch (_currentIndex) {
-      case 0: return 'Dashboard';
-      case 1: return 'Insights';
-      case 2: return 'Eco Butler';
-      case 3: return 'Challenges';
-      case 4: return 'Community';
-      default: return 'Carbon Tracker';
-    }
-  }
 
   Widget _buildThemeToggle() {
     return ValueListenableBuilder<ThemeMode>(

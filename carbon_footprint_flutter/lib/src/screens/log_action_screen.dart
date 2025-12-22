@@ -160,7 +160,7 @@ class _LogActionScreenState extends State<LogActionScreen> {
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size.fromHeight(60),
                     backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   ),
                   child: Text('ARCHIVE ACTION', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, letterSpacing: 1.2)),

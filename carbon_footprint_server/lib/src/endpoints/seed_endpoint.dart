@@ -75,10 +75,19 @@ class SeedEndpoint extends Endpoint {
         if (existingSuggestion == null) {
           final user = await Users.findUserByUserId(session, userInfo.userId);
           final userName = user?.userName ?? "Friend";
+          
+          final suggestions = [
+            'I noticed the morning air is exceptionally clear today, $userName. A brief walking meditation might be in order?',
+            'The digital grid is flowing with renewable energy at this hour, $userName. Shall we capitalize on this for your tasks?',
+            'Your current sustainability streak is most impressive, $userName. I have identified a new biking route that might interest you.',
+            'A fine morning to you, $userName. The urban garden could benefit from our attention today—perhaps a recycling audit?',
+          ];
+          final randomMsg = suggestions[Random().nextInt(suggestions.length)];
+          
           await ButlerEvent.db.insertRow(session, ButlerEvent(
             userId: userInfo.userId,
             type: 'suggestion',
-            message: 'I noticed it\'s a beautiful day for a bike ride, $userName. Shall I prepare a log for your commute?',
+            message: randomMsg,
             timestamp: DateTime.now(),
             isResolved: false,
           ));
