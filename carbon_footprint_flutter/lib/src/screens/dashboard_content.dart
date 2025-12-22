@@ -191,20 +191,13 @@ class _DashboardContentState extends State<DashboardContent> {
             Row(
               children: [
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      try {
-                        var res = await client.seed.seedData();
-                        if (!context.mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(res)));
-                        _fetchData(); 
-                      } catch (e) {
-                        if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-                        }
-                      }
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      refreshNotifier.value++; // Trigger Global Refresh
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Refreshing entire app...')));
                     },
-                    child: const Text('Admin: Seed DB'),
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Refresh'),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -315,24 +308,44 @@ class _DashboardContentState extends State<DashboardContent> {
     String statusTitle = "Fledgling Woods";
     String analysis = "Your journey is just beginning! With every eco-action, we shall plant more life into this landscape.";
     IconData statusIcon = Icons.park_outlined;
-    double progress = (score / 1000).clamp(0.0, 1.0);
-    int nextGoal = 1000;
-    
-    if (score >= 3000) {
-      statusTitle = "Emerald Sanctuary";
-      analysis = "Magnificent! Your impact has transformed this land into a lush paradise. You are a true guardian of the Earth.";
-      statusIcon = Icons.auto_awesome;
+    double progress = 0.0;
+    int nextGoal = 500;
+
+    if (score >= 5000) {
+      statusTitle = "Earth Guardian Realm";
+      analysis = "An ecological masterpiece! Your dedication has created a thriving utopia. You are a true guardian of our planet.";
+      statusIcon = Icons.public;
       progress = 1.0;
+      nextGoal = 10000; // Cap
+    } else if (score >= 3000) {
+      statusTitle = "Emerald Sanctuary";
+      analysis = "Magnificent! The canopy is dense and vibrant with energy. Your impact is transforming the digital landscape.";
+      statusIcon = Icons.auto_awesome;
+      progress = ((score - 3000) / 2000).clamp(0.0, 1.0);
+      nextGoal = 5000;
+    } else if (score >= 1500) {
+      statusTitle = "Blooming Canopy";
+      analysis = "A lush forest is emerging. The environment is rich and growing stronger with every action.";
+      statusIcon = Icons.forest;
+      progress = ((score - 1500) / 1500).clamp(0.0, 1.0);
       nextGoal = 3000;
-    } else if (score >= 1000) {
+    } else if (score >= 500) {
       statusTitle = "Verdurous Grove";
       analysis = "The trees are taking root and the air feels fresher already. Your consistent efforts are clearly paying off.";
-      statusIcon = Icons.forest;
-      progress = ((score - 1000) / 2000).clamp(0.0, 1.0);
-      nextGoal = 3000;
+      statusIcon = Icons.park;
+      progress = ((score - 500) / 1000).clamp(0.0, 1.0);
+      nextGoal = 1500;
+    } else {
+      // Fledgling (< 500)
+      statusTitle = "Fledgling Woods";
+      analysis = "Your journey is just beginning! With every eco-action, we shall plant more life into this landscape.";
+      statusIcon = Icons.park_outlined;
+      progress = (score / 500).clamp(0.0, 1.0);
+      nextGoal = 500;
     }
 
-    final trees = (score / 50.0).toStringAsFixed(1);
+    // Fixed Logic: 20kg CO2 = 1 Mature Tree
+    final trees = (_stats?.totalCo2Saved != null ? (_stats!.totalCo2Saved / 20.0).toStringAsFixed(1) : "0.0");
 
     showModalBottomSheet(
       context: context,
@@ -385,7 +398,12 @@ class _DashboardContentState extends State<DashboardContent> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Text('Next Rank: ${nextGoal == 1000 ? "Verdurous Grove" : "Emerald Sanctuary"}', 
+                  Text('Next Rank: ${
+                  nextGoal == 500 ? "Verdurous Grove" :
+                  nextGoal == 1500 ? "Blooming Canopy" :
+                  nextGoal == 3000 ? "Emerald Sanctuary" :
+                  nextGoal == 5000 ? "Earth Guardian Realm" : "Max"
+                }', 
                       style: TextStyle(color: isDark ? Colors.white70 : Colors.white, fontSize: 13, fontWeight: FontWeight.w500, fontStyle: FontStyle.italic)),
                 ],
               ),
@@ -480,7 +498,7 @@ class _DashboardContentState extends State<DashboardContent> {
   Widget _buildImpactCard({required double totalCo2Saved}) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final trees = (totalCo2Saved / 5.0).toStringAsFixed(1);
+    final trees = (totalCo2Saved / 20.0).toStringAsFixed(1);
     
     return GlassCard(
       opacity: 0.05,
@@ -873,13 +891,15 @@ class _DashboardContentState extends State<DashboardContent> {
                   final meals = double.tryParse(meatController.text) ?? 0;
                   final bill = double.tryParse(electricityController.text) ?? 0;
 
-                  // Simplified formula: 
-                  // km: 0.2 kg/km * 52 weeks
-                  // meals: 2.5 kg/meal * 52 weeks
-                  // electricity: 0.5 kg/$ * 12 months
-                  // Total yearly / 12 for monthly budget
-                  double yearly = (km * 0.2 * 52) + (meals * 2.5 * 52) + (bill * 0.5 * 12);
-                  double monthly = yearly / 12;
+                  // Fixed Logic: Annualize weekly stats then divide by 12 for monthly budget
+                  // Drive: km/week * 0.2 kg/km * 52 weeks / 12 months
+                  // Meat: meals/week * 2.5 kg/meal * 52 weeks / 12 months
+                  // Electricity: $bill * 0.5 kg/$ (already monthly)
+                  double driveMonthly = (km * 0.2 * 52) / 12;
+                  double meatMonthly = (meals * 2.5 * 52) / 12;
+                  double electricityMonthly = bill * 0.5;
+                  
+                  double monthly = driveMonthly + meatMonthly + electricityMonthly;
 
                   if (monthly < 50) monthly = 50; // Minimum floor
 
@@ -908,11 +928,11 @@ class _DashboardContentState extends State<DashboardContent> {
     );
   }
   String _getForestImage(int score) {
-    if (score < 500) return 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=1948&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; // Misty/Autumn
-    if (score < 1500) return 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; // Standard
-    if (score < 3000) return 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; // Lush
-    if (score < 5000) return 'https://images.unsplash.com/photo-1501854140801-50d016748c5b?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; // Solar/Vibrant
-    return 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; // Eco Utopia
+    if (score < 500) return 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=1948&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; // Misty/Fledgling
+    if (score < 1500) return 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; // Standard/Verdurous
+    if (score < 3000) return 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; // Lush/Blooming
+    if (score < 5000) return 'https://images.unsplash.com/photo-1501854140801-50d016748c5b?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; // Solar/Emerald
+    return 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; // Utopia/Guardian
   }
 
   Widget _buildBudgetGauge() {

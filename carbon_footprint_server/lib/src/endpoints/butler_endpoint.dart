@@ -18,7 +18,7 @@ class ButlerEndpoint extends Endpoint {
     }
 
     return GenerativeModel(
-      model: 'gemini-2.5-flash-tts', 
+      model: 'gemini-2.5-flash', 
       apiKey: apiKey,
       systemInstruction: Content.system(
         'You are the Eco Butler — a formal, exceptionally polite assistant for a Carbon Footprint Tracking app. Always refer to the user as "$userName." Never use generic addresses like "sir" or "madam".\n\n'

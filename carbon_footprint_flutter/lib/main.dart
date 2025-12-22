@@ -9,6 +9,7 @@ import 'src/screens/main_screen.dart';
 late final Client client;
 late final SessionManager sessionManager;
 final themeNotifier = ValueNotifier<ThemeMode>(ThemeMode.system);
+final refreshNotifier = ValueNotifier<int>(0); // Global Refresh Signal
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

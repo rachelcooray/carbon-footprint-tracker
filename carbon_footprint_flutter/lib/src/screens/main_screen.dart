@@ -8,6 +8,7 @@ import 'log_action_screen.dart';
 import 'insights_screen.dart';
 import 'butler_screen.dart';
 import 'morning_briefing_screen.dart';
+import 'settings_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MainScreen extends StatefulWidget {
@@ -24,7 +25,25 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _checkBriefing();
+    refreshNotifier.addListener(_onGlobalRefresh); // Listen for refresh
   }
+
+  @override
+  void dispose() {
+    refreshNotifier.removeListener(_onGlobalRefresh);
+    super.dispose();
+  }
+
+  void _onGlobalRefresh() {
+    setState(() {
+      // Re-initialize pages to force full refresh
+      // This is a "hard" refresh of the widget tree for tabs
+      _key = UniqueKey(); 
+    });
+  }
+
+  // Key to force rebuild of the body
+  Key _key = UniqueKey();
 
   Future<void> _checkBriefing() async {
     final prefs = await SharedPreferences.getInstance();
@@ -93,10 +112,18 @@ class _MainScreenState extends State<MainScreen> {
             tooltip: 'Butler Briefing',
             onPressed: _forceBriefing,
           ),
+          IconButton(
+            icon: const Icon(Icons.settings_rounded),
+            tooltip: 'Settings',
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
+            },
+          ),
           const SizedBox(width: 8),
         ],
       ),
       body: IndexedStack(
+        key: _key,
         index: _currentIndex,
         children: _pages,
       ),
