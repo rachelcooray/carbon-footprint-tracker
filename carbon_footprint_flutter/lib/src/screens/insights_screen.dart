@@ -14,6 +14,7 @@ class InsightsScreen extends StatefulWidget {
 class _InsightsScreenState extends State<InsightsScreen> {
   bool _isLoading = true;
   List<ActionLog> _allActions = [];
+  UserStats? _stats;
 
   @override
   void initState() {
@@ -24,9 +25,11 @@ class _InsightsScreenState extends State<InsightsScreen> {
   Future<void> _fetchData() async {
     try {
       final actions = await client.action.getActions(0);
+      final stats = await client.stats.getUserStats(0);
       if (mounted) {
         setState(() {
           _allActions = actions;
+          _stats = stats;
           _isLoading = false;
         });
       }
@@ -66,6 +69,18 @@ class _InsightsScreenState extends State<InsightsScreen> {
               child: _buildTrendChart(),
             ),
           ),
+          const SizedBox(height: 32),
+          Text('Goal Tracking', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Theme.of(context).primaryColor)),
+          const Text('Cumulative savings vs Monthly Budget', style: TextStyle(color: Colors.grey, fontSize: 13)),
+          const SizedBox(height: 16),
+          GlassCard(
+            opacity: 0.05,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: _buildCumulativeChart(),
+            ),
+          ),
+          const SizedBox(height: 32),
         ],
       ),
     );
@@ -118,6 +133,79 @@ class _InsightsScreenState extends State<InsightsScreen> {
              rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
           gridData: const FlGridData(show: false),
+          borderData: FlBorderData(show: false),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCumulativeChart() {
+    if (_stats == null || _allActions.isEmpty) return const SizedBox(height: 100, child: Center(child: Text('Not enough data to track goals.')));
+
+    final now = DateTime.now();
+    final daysInMonth = DateUtils.getDaysInMonth(now.year, now.month);
+    
+    // Sort actions by date
+    final sortedActions = List<ActionLog>.from(_allActions)..sort((a, b) => a.date.compareTo(b.date));
+    
+    List<FlSpot> cumulativeSpots = [];
+    double runningTotal = 0;
+    
+    // Simple logic: Group actions by day of current month
+    Map<int, double> dailySavings = {};
+    for (var log in sortedActions) {
+      if (log.date.month == now.month && log.date.year == now.year) {
+        dailySavings[log.date.day] = (dailySavings[log.date.day] ?? 0) + log.co2Saved;
+      }
+    }
+
+    for (int day = 1; day <= now.day; day++) {
+      runningTotal += dailySavings[day] ?? 0;
+      cumulativeSpots.add(FlSpot(day.toDouble(), runningTotal));
+    }
+
+    final budget = _stats!.monthlyBudget;
+
+    return SizedBox(
+      height: 250,
+      child: LineChart(
+        LineChartData(
+          minX: 1,
+          maxX: daysInMonth.toDouble(),
+          minY: 0,
+          maxY: (runningTotal > budget ? runningTotal : budget) * 1.2,
+          lineBarsData: [
+            // Cumulative Savings Line
+            LineChartBarData(
+              spots: cumulativeSpots,
+              isCurved: true,
+              color: Colors.green,
+              barWidth: 4,
+              dotData: const FlDotData(show: false),
+              belowBarData: BarAreaData(show: true, color: Colors.green.withValues(alpha: 0.1)),
+            ),
+            // Budget Target Line (Static)
+            LineChartBarData(
+              spots: [FlSpot(1, budget), FlSpot(daysInMonth.toDouble(), budget)],
+              isCurved: false,
+              color: Colors.red.withValues(alpha: 0.3),
+              barWidth: 2,
+              dashArray: [5, 5],
+              dotData: const FlDotData(show: false),
+            ),
+          ],
+          titlesData: FlTitlesData(
+            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 40)),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (val, _) => Text(val.toInt().toString(), style: const TextStyle(fontSize: 10)),
+              ),
+            ),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          ),
+          gridData: const FlGridData(show: true, drawVerticalLine: false),
           borderData: FlBorderData(show: false),
         ),
       ),

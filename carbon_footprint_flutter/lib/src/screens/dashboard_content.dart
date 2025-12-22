@@ -199,42 +199,57 @@ class _DashboardContentState extends State<DashboardContent> {
             ),
             const SizedBox(height: 24),
             // Forest Illustration (Absolute Path for immediate preview)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: Stack(
-                children: [
-                   Image.network(
-                    _getForestImage(_stats?.ecoScore ?? 0),
-                    fit: BoxFit.cover,
-                    height: 200,
-                    width: double.infinity,
+            GestureDetector(
+              onTap: () {
+                final score = _stats?.ecoScore ?? 0;
+                String msg = "Your forest is healthy, sir/madam.";
+                if (score > 3000) msg = "Your forest is a lush paradise, sir/madam! Your impact is truly monumental.";
+                else if (score > 1000) msg = "Your forest is growing beautifully, sir/madam.";
+                
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(msg),
+                    behavior: SnackBarBehavior.floating,
                   ),
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.black.withValues(alpha: 0.7), Colors.transparent],
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
+                );
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Stack(
+                  children: [
+                     Image.network(
+                      _getForestImage(_stats?.ecoScore ?? 0),
+                      fit: BoxFit.cover,
+                      height: 200,
+                      width: double.infinity,
+                    ),
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Colors.black.withValues(alpha: 0.7), Colors.transparent],
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const Positioned(
-                    bottom: 20,
-                    left: 20,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Your Forest', style: TextStyle(color: Colors.white70, fontSize: 14)),
-                        Text(
-                          'Growing with every action.',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
-                        ),
-                      ],
+                    const Positioned(
+                      bottom: 20,
+                      left: 20,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Your Forest', style: TextStyle(color: Colors.white70, fontSize: 14)),
+                          Text(
+                            'Growing with every action.',
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 32),
@@ -360,7 +375,10 @@ class _DashboardContentState extends State<DashboardContent> {
                 children: [
                   Expanded(
                     child: TextButton(
-                      style: TextButton.styleFrom(foregroundColor: Colors.white70),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
                       onPressed: () async {
                         try {
                           await client.butler.resolveEvent(event.id!);
@@ -375,7 +393,7 @@ class _DashboardContentState extends State<DashboardContent> {
                           }
                         }
                       },
-                      child: const Text('Maybe later'),
+                      child: const Text('Maybe later', style: TextStyle(decoration: TextDecoration.underline)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -514,10 +532,13 @@ class _DashboardContentState extends State<DashboardContent> {
     if (percent > 0.5) gaugeColor = Colors.orange;
     if (percent > 0.8) gaugeColor = Colors.red;
 
-    return GlassCard(
-      child: Column(
-        children: [
-          const Text('Monthly Carbon Footprint', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+    return InkWell(
+      onTap: () => _showBaselineCalculator(),
+      borderRadius: BorderRadius.circular(24),
+      child: GlassCard(
+        child: Column(
+          children: [
+            const Text('Monthly Carbon Footprint', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: 20),
           Stack(
             alignment: Alignment.center,
@@ -548,6 +569,6 @@ class _DashboardContentState extends State<DashboardContent> {
           ),
         ],
       ),
-    );
+    ));
   }
 }
