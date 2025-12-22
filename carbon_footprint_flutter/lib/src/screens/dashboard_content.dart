@@ -138,6 +138,11 @@ class _DashboardContentState extends State<DashboardContent> {
             ),
             const SizedBox(height: 24),
 
+            // Tip of the Day Card - Moved here for better visibility
+            _buildTipCard(),
+            
+            const SizedBox(height: 24),
+
             if (_butlerEvents.isNotEmpty) ...[
               _buildButlerSuggestion(_butlerEvents.first),
               const SizedBox(height: 24),
@@ -152,11 +157,7 @@ class _DashboardContentState extends State<DashboardContent> {
             _buildImpactCard(totalCo2Saved: _stats?.totalCo2Saved ?? 0),
             
             const SizedBox(height: 24),
-            
-            // Tip of the Day Card
-            _buildTipCard(),
 
-            const SizedBox(height: 24),
             Text('Recent Activity', style: Theme.of(context).textTheme.titleLarge),
             Row(
               children: [
@@ -200,19 +201,7 @@ class _DashboardContentState extends State<DashboardContent> {
             const SizedBox(height: 24),
             // Forest Illustration (Absolute Path for immediate preview)
             GestureDetector(
-              onTap: () {
-                final score = _stats?.ecoScore ?? 0;
-                String msg = "Your forest is healthy, sir/madam.";
-                if (score > 3000) msg = "Your forest is a lush paradise, sir/madam! Your impact is truly monumental.";
-                else if (score > 1000) msg = "Your forest is growing beautifully, sir/madam.";
-                
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(msg),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-              },
+              onTap: () => _showForestAnalysis(),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(24),
                 child: Stack(
@@ -248,6 +237,11 @@ class _DashboardContentState extends State<DashboardContent> {
                         ],
                       ),
                     ),
+                    const Positioned(
+                      top: 10,
+                      right: 10,
+                      child: Icon(Icons.touch_app, color: Colors.white54, size: 20),
+                    ),
                   ],
                 ),
               ),
@@ -256,6 +250,129 @@ class _DashboardContentState extends State<DashboardContent> {
           ],
         ),
       );
+  }
+
+  void _showForestAnalysis() {
+    final score = _stats?.ecoScore ?? 0;
+    String statusTitle = "Fledgling Woods";
+    String analysis = "Your journey is just beginning! With every eco-action, we shall plant more life into this landscape.";
+    IconData statusIcon = Icons.park_outlined;
+    double progress = (score / 1000).clamp(0.0, 1.0);
+    int nextGoal = 1000;
+    
+    if (score >= 3000) {
+      statusTitle = "Emerald Sanctuary";
+      analysis = "Magnificent! Your impact has transformed this land into a lush paradise. You are a true guardian of the Earth.";
+      statusIcon = Icons.auto_awesome;
+      progress = 1.0;
+      nextGoal = 3000;
+    } else if (score >= 1000) {
+      statusTitle = "Verdurous Grove";
+      analysis = "The trees are taking root and the air feels fresher already. Your consistent efforts are clearly paying off.";
+      statusIcon = Icons.forest;
+      progress = ((score - 1000) / 2000).clamp(0.0, 1.0);
+      nextGoal = 3000;
+    }
+
+    final trees = (score / 50.0).toStringAsFixed(1);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => GlassCard(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)),
+              ),
+              const SizedBox(height: 24),
+              Icon(statusIcon, color: Colors.greenAccent, size: 64),
+              const SizedBox(height: 16),
+              Text(statusTitle, style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Text('Rank Score: $score', style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.w500)),
+              const SizedBox(height: 24),
+              
+              // Progress Bar
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Growth to Next Stage', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                      Text('${(progress * 100).toInt()}%', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      backgroundColor: Colors.white10,
+                      color: Colors.greenAccent,
+                      minHeight: 10,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text('Next Rank: ${nextGoal == 1000 ? "Verdurous Grove" : "Emerald Sanctuary"}', 
+                      style: const TextStyle(color: Colors.white54, fontSize: 11, fontStyle: FontStyle.italic)),
+                ],
+              ),
+              
+              const SizedBox(height: 24),
+              Text(
+                analysis,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white, fontSize: 16, height: 1.5),
+              ),
+              const SizedBox(height: 24),
+              
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildForestStat(Icons.park, trees, 'Trees Revived'),
+                  _buildForestStat(Icons.wb_sunny, '${(score / 10).toInt()}%', 'Eco Vitality'),
+                ],
+              ),
+
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white, 
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Return to Estate', style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildForestStat(IconData icon, String value, String label) {
+    return Column(
+      children: [
+        Icon(icon, color: Colors.greenAccent, size: 32),
+        const SizedBox(height: 8),
+        Text(value, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+        Text(label, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+      ],
+    );
   }
 
   Widget _buildMiniStat(IconData icon, String label, String value) {
@@ -406,7 +523,7 @@ class _DashboardContentState extends State<DashboardContent> {
                       ),
                       onPressed: () async {
                         try {
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Working on it, sir!')));
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Working on it!')));
                           await client.butler.sendMessage('Confirmed: ${event.message}');
                           await client.butler.resolveEvent(event.id!); // Mark as resolved persistently
                           if (mounted) {

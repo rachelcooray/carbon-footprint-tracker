@@ -114,9 +114,9 @@ class _ButlerScreenState extends State<ButlerScreen> {
             child: const Icon(Icons.face_retouching_natural, size: 60, color: Colors.blueGrey),
           ),
           const SizedBox(height: 24),
-          const Text('At your service, sir/madam.', style: TextStyle(fontStyle: FontStyle.italic, fontSize: 16)),
+          const Text('I am at your service.', style: TextStyle(fontStyle: FontStyle.italic, fontSize: 16)),
           const SizedBox(height: 8),
-          const Text('How may I assist your noble quest today?', style: TextStyle(color: Colors.grey)),
+          const Text('How may I assist your eco-journey today?', style: TextStyle(color: Colors.grey)),
         ],
       ),
     );

@@ -65,15 +65,21 @@ class SeedEndpoint extends Endpoint {
         }
       }
 
-      // 5. Seed Butler Suggestion
+      // 5. Seed Butler Suggestion (If no active suggestion exists)
       if (userInfo != null) {
-        await ButlerEvent.db.insertRow(session, ButlerEvent(
-          userId: userInfo.userId,
-          type: 'suggestion',
-          message: 'I noticed it\'s a beautiful day for a bike ride, sir. Shall I prepare a log for your commute?',
-          timestamp: DateTime.now(),
-          isResolved: false,
-        ));
+        final existingSuggestion = await ButlerEvent.db.findFirstRow(
+          session,
+          where: (t) => t.userId.equals(userInfo.userId) & t.isResolved.equals(false),
+        );
+        if (existingSuggestion == null) {
+          await ButlerEvent.db.insertRow(session, ButlerEvent(
+            userId: userInfo.userId,
+            type: 'suggestion',
+            message: 'I noticed it\'s a beautiful day for a bike ride, sir. Shall I prepare a log for your commute?',
+            timestamp: DateTime.now(),
+            isResolved: false,
+          ));
+        }
       }
 
       // 6. Seed Community Groups

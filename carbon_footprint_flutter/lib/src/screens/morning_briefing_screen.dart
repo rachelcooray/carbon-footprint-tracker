@@ -10,7 +10,7 @@ class MorningBriefingScreen extends StatefulWidget {
 }
 
 class _MorningBriefingScreenState extends State<MorningBriefingScreen> with SingleTickerProviderStateMixin {
-  String _briefingText = "Good morning, sir/madam. I am preparing your environmental dossier for the day...";
+  String _briefingText = "Good morning! I am preparing your environmental dossier for the day...";
   bool _isLoading = true;
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
