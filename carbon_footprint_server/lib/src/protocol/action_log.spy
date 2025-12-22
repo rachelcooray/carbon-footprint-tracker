@@ -1,0 +1,10 @@
+class: ActionLog
+table: action_log
+fields:
+  userId: int
+  date: DateTime
+  actionId: int
+  action: EcoAction?, relation(field=actionId)
+
+  quantity: double
+  co2Saved: double

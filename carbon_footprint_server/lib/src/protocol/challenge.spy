@@ -1,0 +1,11 @@
+class: Challenge
+table: challenge
+fields:
+  title: String
+  description: String
+  targetActionId: int
+  targetAction: EcoAction?, relation(field=targetActionId)
+  targetAmount: double
+  unit: String
+  points: int
+  durationDays: int

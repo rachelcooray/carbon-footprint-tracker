@@ -1,0 +1,8 @@
+class: SocialPost
+table: social_post
+fields:
+  userId: int
+  userName: String?
+  content: String
+  timestamp: DateTime
+  type: String

@@ -1,0 +1,31 @@
+action:
+  - logAction:
+  - getActions:
+butler:
+  - getChatHistory:
+  - sendMessage:
+  - getActiveSuggestions:
+  - generateDailyBriefing:
+challenge:
+  - getUserChallenges:
+community:
+  - getGroups:
+  - createGroup:
+  - joinGroup:
+  - getMyGroups:
+ecoAction:
+  - getAllActions:
+seed:
+  - seedData:
+social:
+  - getFeed:
+  - getGlobalImpact:
+  - cheerUser:
+  - nudgeUser:
+stats:
+  - getUserStats:
+  - getLeaderboard:
+  - getBadges:
+  - updateMonthlyBudget:
+greeting:
+  - hello:

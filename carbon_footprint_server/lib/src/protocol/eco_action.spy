@@ -1,0 +1,7 @@
+class: EcoAction
+table: eco_action
+fields:
+  name: String
+  co2Factor: double
+  unit: String
+  category: String

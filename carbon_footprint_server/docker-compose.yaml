@@ -1,0 +1,44 @@
+services:
+  # Development services
+  postgres:
+    image: postgres:16.3
+    ports:
+      - "8090:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: carbon_footprint
+      POSTGRES_PASSWORD: "_v48s0qWFHog3Ha91RZliSMorV2S2emj"
+    volumes:
+      - carbon_footprint_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:6.2.6
+    ports:
+      - "8091:6379"
+    command: redis-server --requirepass "DwSZW7gAdzJ2EOdNummCSwC9cMego5zZ"
+    environment:
+      - REDIS_REPLICATION_MODE=master
+
+  # Test services
+  postgres_test:
+    image: postgres:16.3
+    ports:
+      - "9090:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: carbon_footprint_test
+      POSTGRES_PASSWORD: "FOHbikIuQOBNwXfLkjYUCwuOapCz8H1t"
+    volumes:
+      - carbon_footprint_test_data:/var/lib/postgresql/data
+
+  redis_test:
+    image: redis:6.2.6
+    ports:
+      - "9091:6379"
+    command: redis-server --requirepass "sObVem_acP2ZBUIbnpRqVf6qcMg7lQwK"
+    environment:
+      - REDIS_REPLICATION_MODE=master
+
+volumes:
+  carbon_footprint_data:
+  carbon_footprint_test_data:

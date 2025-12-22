@@ -1,0 +1,8 @@
+class: Badge
+table: badge
+fields:
+  userId: int
+  name: String
+  description: String
+  earnedDate: DateTime
+  iconType: String?

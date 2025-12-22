@@ -1,0 +1,7 @@
+class: CommunityGroup
+table: community_group
+fields:
+  name: String
+  description: String
+  totalImpact: double, default=0.0
+  memberCount: int, default=0

@@ -1,0 +1,9 @@
+class: UserStats
+fields:
+  totalCo2Saved: double
+  weeklyCo2Saved: double
+  ecoScore: int
+  level: int
+  streakDays: int
+  monthlyBudget: double
+  monthlyCo2Saved: double

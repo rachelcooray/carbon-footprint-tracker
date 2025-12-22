@@ -1,0 +1,7 @@
+class: GroupMember
+table: group_member
+fields:
+  groupId: int
+  group: CommunityGroup?, relation(field=groupId)
+  userId: int
+  joinedAt: DateTime

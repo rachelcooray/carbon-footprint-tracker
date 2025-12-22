@@ -1,0 +1,8 @@
+class: ButlerEvent
+table: butler_event
+fields:
+  userId: int
+  type: String
+  message: String
+  timestamp: DateTime
+  isResolved: bool

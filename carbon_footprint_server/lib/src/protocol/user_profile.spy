@@ -1,0 +1,10 @@
+class: UserProfile
+table: user_profile
+fields:
+  userId: int
+  ecoScore: int
+  joinedDate: DateTime
+  level: int, default=1
+  streakDays: int, default=0
+  lastActionDate: DateTime?
+  monthlyBudget: double, default=200.0
