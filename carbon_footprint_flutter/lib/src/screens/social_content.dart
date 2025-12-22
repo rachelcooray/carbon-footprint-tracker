@@ -151,8 +151,8 @@ class _SocialContentState extends State<SocialContent> {
 
         return ListTile(
           leading: CircleAvatar(
-            backgroundColor: isMe ? Colors.green : Colors.grey[300],
-            child: Text('${index + 1}', style: TextStyle(color: isMe ? Colors.white : Colors.black)),
+            backgroundColor: isMe ? Colors.green : Theme.of(context).cardColor,
+            child: Text('${index + 1}', style: TextStyle(color: isMe ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color)),
           ),
           title: Text(isMe ? 'You' : 'User #${user.userId}'),
           subtitle: Text('Level ${user.level} • Joined ${user.joinedDate.toString().split(" ")[0]}'),

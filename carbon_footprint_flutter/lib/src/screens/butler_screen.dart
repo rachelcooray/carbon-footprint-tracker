@@ -116,7 +116,7 @@ class _ButlerScreenState extends State<ButlerScreen> {
           const SizedBox(height: 24),
           const Text('I am at your service.', style: TextStyle(fontStyle: FontStyle.italic, fontSize: 16)),
           const SizedBox(height: 8),
-          const Text('How may I assist your eco-journey today?', style: TextStyle(color: Colors.grey)),
+          Text('How may I assist your eco-journey today?', style: TextStyle(color: Theme.of(context).hintColor)),
         ],
       ),
     );
@@ -198,7 +198,7 @@ class _ButlerScreenState extends State<ButlerScreen> {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: const Offset(0, -2))],
+        boxShadow: [BoxShadow(color: Theme.of(context).shadowColor.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, -2))],
       ),
       child: Row(
         children: [

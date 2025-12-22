@@ -33,19 +33,23 @@ class _MainScreenState extends State<MainScreen> {
     if (lastBriefing != today) {
       if (mounted) {
         // Show briefing overlay
-        showGeneralDialog(
-          context: context,
-          barrierDismissible: false,
-          barrierLabel: 'Morning Briefing',
-          pageBuilder: (context, anim1, anim2) => const MorningBriefingScreen(),
-          transitionDuration: const Duration(milliseconds: 500),
-          transitionBuilder: (context, anim1, anim2, child) {
-            return FadeTransition(opacity: anim1, child: child);
-          },
-        );
+        _forceBriefing();
         await prefs.setString('last_briefing_date', today);
       }
     }
+  }
+
+  void _forceBriefing() {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Morning Briefing',
+      pageBuilder: (context, anim1, anim2) => const MorningBriefingScreen(),
+      transitionDuration: const Duration(milliseconds: 500),
+      transitionBuilder: (context, anim1, anim2, child) {
+        return FadeTransition(opacity: anim1, child: child);
+      },
+    );
   }
 
   final List<Widget> _pages = const [
@@ -69,6 +73,11 @@ class _MainScreenState extends State<MainScreen> {
               tooltip: 'Refresh',
               onPressed: () => setState(() {}), // Triggers initState/build in sub-pages
             ),
+          IconButton(
+            icon: const Icon(Icons.wb_sunny_rounded),
+            tooltip: 'Butler Briefing',
+            onPressed: _forceBriefing,
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',

@@ -105,7 +105,11 @@ class _InsightsScreenState extends State<InsightsScreen> {
               title: e.key,
               color: _getColorForCategory(e.key),
               radius: 50,
-              titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+              titleStyle: TextStyle(
+                fontSize: 12, 
+                fontWeight: FontWeight.bold, 
+                color: _isColorLight(_getColorForCategory(e.key)) ? Colors.black87 : Colors.white
+              ),
             );
           }).toList(),
         ),
@@ -220,5 +224,9 @@ class _InsightsScreenState extends State<InsightsScreen> {
       case 'Energy': return const Color(0xFFC8E6C9);
       default: return Colors.blueGrey.shade200;
     }
+  }
+
+  bool _isColorLight(Color color) {
+    return ThemeData.estimateBrightnessForColor(color) == Brightness.light;
   }
 }

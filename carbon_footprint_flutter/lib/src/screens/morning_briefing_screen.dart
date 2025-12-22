@@ -91,7 +91,12 @@ class _MorningBriefingScreenState extends State<MorningBriefingScreen> with Sing
                         Text(
                           _briefingText,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 16, height: 1.6, fontStyle: FontStyle.italic),
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontSize: 16, 
+                            height: 1.6, 
+                            fontStyle: FontStyle.italic,
+                            color: Colors.white.withValues(alpha: 0.9), // Ensure white on dark overlay
+                          ),
                         ),
                       const SizedBox(height: 32),
                       SizedBox(

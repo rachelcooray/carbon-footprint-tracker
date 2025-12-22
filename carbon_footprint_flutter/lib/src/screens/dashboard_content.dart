@@ -18,6 +18,17 @@ class _DashboardContentState extends State<DashboardContent> {
   List<ActionLog> _recentActions = [];
   List<ButlerEvent> _butlerEvents = [];
   bool _isLoading = true;
+  double _solarValue = 0.0; // 0 to 1
+  double _evKmValue = 0.0; // 0 to 500
+  
+  final List<String> _tips = [
+    'Washing clothes at 30°C saves up to 40% energy!',
+    'Swapping one meat meal for plant-based saves 1.5kg CO2.',
+    'Unplugging idle electronics can save 5% on your bill.',
+    'Biking instead of driving saves 0.5kg CO2 per km.',
+    'Switch to Solar: Can reduce household footprint by 80%.',
+    'Go EV: Save ~2.4 tons of CO2 annually vs petrol cars.',
+  ];
 
   @override
   void initState() {
@@ -78,7 +89,7 @@ class _DashboardContentState extends State<DashboardContent> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Eco Score Card (Premium Gradient)
+            // 1. Eco Score Card (Premium Gradient)
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
@@ -138,27 +149,25 @@ class _DashboardContentState extends State<DashboardContent> {
             ),
             const SizedBox(height: 24),
 
-            // Tip of the Day Card - Moved here for better visibility
-            _buildTipCard(),
-            
+            // 2. Impact & Budget Row (Squares) - MOVED UP
+            Row(
+              children: [
+                Expanded(child: _buildImpactCard(totalCo2Saved: _stats?.totalCo2Saved ?? 0)),
+                const SizedBox(width: 16),
+                Expanded(child: _buildBudgetGauge()),
+              ],
+            ),
             const SizedBox(height: 24),
 
+            // 3. Butler's Suggestions
             if (_butlerEvents.isNotEmpty) ...[
               _buildButlerSuggestion(_butlerEvents.first),
               const SizedBox(height: 24),
             ],
 
-            // Carbon Budget Gauge
-            _buildBudgetGauge(),
-
-            const SizedBox(height: 24),
-
-            // Relatable Impact Card
-            _buildImpactCard(totalCo2Saved: _stats?.totalCo2Saved ?? 0),
-            
-            const SizedBox(height: 24),
-
+            // 4. Recent Activity (Buttons)
             Text('Recent Activity', style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 8),
             Row(
               children: [
                 Expanded(
@@ -199,7 +208,31 @@ class _DashboardContentState extends State<DashboardContent> {
               ],
             ),
             const SizedBox(height: 24),
-            // Forest Illustration (Absolute Path for immediate preview)
+
+            // 5. Tip of the Day Cards
+            _buildTipCarousel(),
+            const SizedBox(height: 24),
+
+            // 6. Eco-Envisioning 2.0
+            _buildEnvisioningSimulator(),
+            const SizedBox(height: 24),
+
+            // 7. Baseline Footprint Calc (Standalone Button)
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => _showBaselineCalculator(),
+                icon: const Icon(Icons.calculate_outlined),
+                label: const Text('Analyze Footprint Baseline'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // 8. Your Forest
             GestureDetector(
               onTap: () => _showForestAnalysis(),
               child: ClipRRect(
@@ -223,24 +256,24 @@ class _DashboardContentState extends State<DashboardContent> {
                         ),
                       ),
                     ),
-                    const Positioned(
+                    Positioned(
                       bottom: 20,
                       left: 20,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Your Forest', style: TextStyle(color: Colors.white70, fontSize: 14)),
-                          Text(
+                          Text('Your Forest', style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 14)),
+                          const Text(
                             'Growing with every action.',
                             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
                           ),
                         ],
                       ),
                     ),
-                    const Positioned(
+                    Positioned(
                       top: 10,
                       right: 10,
-                      child: Icon(Icons.touch_app, color: Colors.white54, size: 20),
+                      child: Icon(Icons.touch_app, color: Colors.white.withValues(alpha: 0.5), size: 20),
                     ),
                   ],
                 ),
@@ -386,15 +419,7 @@ class _DashboardContentState extends State<DashboardContent> {
     );
   }
 
-  Widget _buildTipCard() {
-    final tips = [
-      'Washing clothes at 30°C saves up to 40% energy!',
-      'Swapping one meat meal for plant-based saves 1.5kg CO2.',
-      'Unplugging idle electronics can save 5% on your bill.',
-      'Biking instead of driving saves 0.5kg CO2 per km.',
-    ];
-    final tip = tips[DateTime.now().day % tips.length];
-
+  Widget _buildTipCard(String tip) {
     return GlassCard(
       opacity: 0.05,
       gradientColors: [Colors.orange.withValues(alpha: 0.1), Colors.orange.withValues(alpha: 0.05)],
@@ -404,8 +429,8 @@ class _DashboardContentState extends State<DashboardContent> {
           decoration: BoxDecoration(color: Colors.orange.withValues(alpha: 0.2), shape: BoxShape.circle),
           child: const Icon(Icons.lightbulb, color: Colors.orange),
         ),
-        title: const Text('Tip of the Day', style: TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(tip),
+        title: Text('Tip of the Day', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor)),
+        subtitle: Text(tip, style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color)),
       ),
     );
   }
@@ -415,39 +440,21 @@ class _DashboardContentState extends State<DashboardContent> {
     
     return GlassCard(
       opacity: 0.05,
-      gradientColors: [Colors.blue.withValues(alpha: 0.1), Colors.blue.withValues(alpha: 0.05)],
+      gradientColors: [Colors.green.withValues(alpha: 0.1), Colors.green.withValues(alpha: 0.05)],
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(12)),
-                  child: const Icon(Icons.park, color: Colors.green, size: 30),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Relatable Impact', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      Text('Your savings are equivalent to the weekly work of $trees trees!',
-                          style: TextStyle(color: Theme.of(context).hintColor)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Divider(color: Colors.black12),
+            const Icon(Icons.park, color: Colors.green, size: 32),
+            const SizedBox(height: 12),
+            const Text('Total Impact', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             const SizedBox(height: 8),
-            TextButton.icon(
-              onPressed: () => _showBaselineCalculator(),
-              icon: const Icon(Icons.calculate_outlined),
-              label: const Text('Calculate my baseline footprint'),
+            Text(
+              '$trees',
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.greenAccent),
             ),
+            const Text('Trees Equivalent', style: TextStyle(fontSize: 10, color: Colors.grey), textAlign: TextAlign.center),
           ],
         ),
       ),
@@ -546,6 +553,172 @@ class _DashboardContentState extends State<DashboardContent> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTipCarousel() {
+    return SizedBox(
+      height: 100,
+      child: PageView.builder(
+        itemCount: _tips.length,
+        controller: PageController(viewportFraction: 0.9),
+        itemBuilder: (context, index) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: _buildTipCard(_tips[index]),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEnvisioningSimulator() {
+    // Math for impacts
+    // Solar: avg household uses 10k kWh/year, 1kWh ~ 0.4kg CO2. Solar saves up to 80% (4000kg).
+    double co2SavedSolar = _solarValue * 4000;
+    // EV: avg car emits 0.12kg/km. EV saves ~0.10kg/km (accounting for charging footprint).
+    double co2SavedEv = _evKmValue * 52 * 0.10; 
+    
+    double totalCo2Saved = co2SavedSolar + co2SavedEv;
+    
+    // Financial: Solar saves ~$1200/year at 100%. EV saves ~$0.10/km in fuel vs electric.
+    double moneySaved = (_solarValue * 1200) + (_evKmValue * 52 * 0.10);
+
+    String butlerVerdict;
+    if (totalCo2Saved == 0) {
+      butlerVerdict = "Select an upgrade to begin our environmental projection.";
+    } else if (totalCo2Saved < 2000) {
+      butlerVerdict = "A commendable start. These measures would significantly reduce your estate's overhead.";
+    } else if (totalCo2Saved < 5000) {
+      butlerVerdict = "Substantial progress! Your carbon legacy is being rewritten with every kilowatt-hour saved.";
+    } else {
+      butlerVerdict = "Exemplary! This configuration would place your estate among the greenest in the nation.";
+    }
+
+    return GlassCard(
+      opacity: 0.05,
+      gradientColors: [Colors.indigo.withValues(alpha: 0.1), Colors.teal.withValues(alpha: 0.1)],
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.auto_awesome, color: Colors.amber, size: 28),
+                const SizedBox(width: 12),
+                Text('Eco-Envisioning 2.0', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, fontSize: 20)),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(butlerVerdict, style: const TextStyle(fontSize: 13, color: Colors.white70, fontStyle: FontStyle.italic)),
+            const SizedBox(height: 24),
+            
+            // Solar Slider
+            _buildSimSlider(
+              icon: Icons.wb_sunny_rounded,
+              label: 'Solar Coverage',
+              value: _solarValue,
+              displayValue: '${(_solarValue * 100).toInt()}%',
+              onChanged: (v) => setState(() => _solarValue = v),
+            ),
+            
+            const SizedBox(height: 20),
+            
+            // EV Slider
+            _buildSimSlider(
+              icon: Icons.electric_car_rounded,
+              label: 'Weekly EV Travel',
+              value: _evKmValue / 500,
+              displayValue: '${_evKmValue.toInt()} km',
+              onChanged: (v) => setState(() => _evKmValue = v * 500),
+            ),
+
+            if (totalCo2Saved > 0) ...[
+              const SizedBox(height: 32),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildImpactMetric(
+                      Icons.trending_down, 
+                      'Potential CO2 Saved', 
+                      '${totalCo2Saved.toInt()} kg/yr',
+                      Colors.greenAccent,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildImpactMetric(
+                      Icons.savings_outlined, 
+                      'Est. Money Saved', 
+                      '\$${moneySaved.toInt()}/yr',
+                      Colors.orangeAccent,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSimSlider({
+    required IconData icon, 
+    required String label, 
+    required double value, 
+    required String displayValue, 
+    required ValueChanged<double> onChanged
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(icon, size: 18, color: Colors.white60),
+                const SizedBox(width: 8),
+                Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+              ],
+            ),
+            Text(displayValue, style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            trackHeight: 4,
+            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+            overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+          ),
+          child: Slider(
+            value: value,
+            onChanged: onChanged,
+            activeColor: Colors.greenAccent,
+            inactiveColor: Colors.white10,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildImpactMetric(IconData icon, String label, String value, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(height: 8),
+          Text(label, style: TextStyle(color: color.withValues(alpha: 0.7), fontSize: 10, fontWeight: FontWeight.bold)),
+          Text(value, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w900)),
+        ],
       ),
     );
   }
@@ -653,39 +826,34 @@ class _DashboardContentState extends State<DashboardContent> {
       onTap: () => _showBaselineCalculator(),
       borderRadius: BorderRadius.circular(24),
       child: GlassCard(
-        child: Column(
-          children: [
-            const Text('Monthly Carbon Footprint', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          const SizedBox(height: 20),
-          Stack(
-            alignment: Alignment.center,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(
-                height: 120,
-                width: 120,
-                child: CircularProgressIndicator(
-                  value: percent,
-                  strokeWidth: 12,
-                  backgroundColor: Colors.grey.withValues(alpha: 0.1),
-                  color: gaugeColor,
-                ),
-              ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
+              Stack(
+                alignment: Alignment.center,
                 children: [
-                  Text('${used.toStringAsFixed(1)}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                  const Text('Remaining Footprint', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                  SizedBox(
+                    height: 60,
+                    width: 60,
+                    child: CircularProgressIndicator(
+                      value: percent,
+                      strokeWidth: 8,
+                      backgroundColor: Colors.grey.withValues(alpha: 0.1),
+                      color: gaugeColor,
+                    ),
+                  ),
+                  Text('${used.toInt()}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ],
               ),
+              const SizedBox(height: 12),
+              const Text('Month Left', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              const Text('kg CO2 Remaining', style: TextStyle(fontSize: 10, color: Colors.grey), textAlign: TextAlign.center),
             ],
           ),
-          const SizedBox(height: 20),
-          Text(
-            'Limit: ${_stats!.monthlyBudget.toInt()}kg per month',
-            style: const TextStyle(fontStyle: FontStyle.italic, color: Colors.blueGrey),
-          ),
-        ],
+        ),
       ),
-    ));
+    );
   }
 }
