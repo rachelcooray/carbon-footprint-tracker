@@ -213,6 +213,45 @@ class Endpoints extends _i1.EndpointDispatch {
             params['eventId'],
           ),
         ),
+        'analyzeImage': _i1.MethodConnector(
+          name: 'analyzeImage',
+          params: {
+            'base64Image': _i1.ParameterDescription(
+              name: 'base64Image',
+              type: _i1.getType<String>(),
+              nullable: false,
+            )
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['butler'] as _i3.ButlerEndpoint).analyzeImage(
+            session,
+            params['base64Image'],
+          ),
+        ),
+        'chatStream': _i1.MethodStreamConnector(
+          name: 'chatStream',
+          params: {
+            'text': _i1.ParameterDescription(
+              name: 'text',
+              type: _i1.getType<String>(),
+              nullable: false,
+            )
+          },
+          streamParams: {},
+          returnType: _i1.MethodStreamReturnType.streamType,
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+            Map<String, Stream> streamParams,
+          ) =>
+              (endpoints['butler'] as _i3.ButlerEndpoint).chatStream(
+            session,
+            params['text'],
+          ),
+        ),
       },
     );
     connectors['challenge'] = _i1.EndpointConnector(

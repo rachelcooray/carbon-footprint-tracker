@@ -21,6 +21,7 @@ abstract class UserProfile implements _i1.SerializableModel {
     int? streakDays,
     this.lastActionDate,
     double? monthlyBudget,
+    this.userName,
   })  : level = level ?? 1,
         streakDays = streakDays ?? 0,
         monthlyBudget = monthlyBudget ?? 200.0;
@@ -34,6 +35,7 @@ abstract class UserProfile implements _i1.SerializableModel {
     int? streakDays,
     DateTime? lastActionDate,
     double? monthlyBudget,
+    String? userName,
   }) = _UserProfileImpl;
 
   factory UserProfile.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -50,6 +52,7 @@ abstract class UserProfile implements _i1.SerializableModel {
           : _i1.DateTimeJsonExtension.fromJson(
               jsonSerialization['lastActionDate']),
       monthlyBudget: (jsonSerialization['monthlyBudget'] as num).toDouble(),
+      userName: jsonSerialization['userName'] as String?,
     );
   }
 
@@ -72,6 +75,8 @@ abstract class UserProfile implements _i1.SerializableModel {
 
   double monthlyBudget;
 
+  String? userName;
+
   /// Returns a shallow copy of this [UserProfile]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -84,6 +89,7 @@ abstract class UserProfile implements _i1.SerializableModel {
     int? streakDays,
     DateTime? lastActionDate,
     double? monthlyBudget,
+    String? userName,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -96,6 +102,7 @@ abstract class UserProfile implements _i1.SerializableModel {
       'streakDays': streakDays,
       if (lastActionDate != null) 'lastActionDate': lastActionDate?.toJson(),
       'monthlyBudget': monthlyBudget,
+      if (userName != null) 'userName': userName,
     };
   }
 
@@ -117,6 +124,7 @@ class _UserProfileImpl extends UserProfile {
     int? streakDays,
     DateTime? lastActionDate,
     double? monthlyBudget,
+    String? userName,
   }) : super._(
           id: id,
           userId: userId,
@@ -126,6 +134,7 @@ class _UserProfileImpl extends UserProfile {
           streakDays: streakDays,
           lastActionDate: lastActionDate,
           monthlyBudget: monthlyBudget,
+          userName: userName,
         );
 
   /// Returns a shallow copy of this [UserProfile]
@@ -141,6 +150,7 @@ class _UserProfileImpl extends UserProfile {
     int? streakDays,
     Object? lastActionDate = _Undefined,
     double? monthlyBudget,
+    Object? userName = _Undefined,
   }) {
     return UserProfile(
       id: id is int? ? id : this.id,
@@ -152,6 +162,7 @@ class _UserProfileImpl extends UserProfile {
       lastActionDate:
           lastActionDate is DateTime? ? lastActionDate : this.lastActionDate,
       monthlyBudget: monthlyBudget ?? this.monthlyBudget,
+      userName: userName is String? ? userName : this.userName,
     );
   }
 }

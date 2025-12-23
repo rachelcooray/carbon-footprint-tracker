@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:convert';
+import 'dart:io';
 import 'package:carbon_footprint_client/carbon_footprint_client.dart';
 import '../../main.dart';
 import '../widgets/glass_card.dart';
@@ -14,6 +18,7 @@ class ButlerScreen extends StatefulWidget {
 class _ButlerScreenState extends State<ButlerScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final ImagePicker _picker = ImagePicker();
   List<ButlerMessage> _messages = [];
   bool _isLoading = true;
 
@@ -43,7 +48,7 @@ class _ButlerScreenState extends State<ButlerScreen> {
     if (text.isEmpty) return;
 
     _controller.clear();
-    // Optimistic UI update (append to end for standard list)
+    // Optimistic UI update (append user message)
     setState(() {
       _messages.add(ButlerMessage(
         userId: 0,
@@ -54,14 +59,218 @@ class _ButlerScreenState extends State<ButlerScreen> {
     });
     _scrollToBottom();
 
+    // Prepare placeholder for Butler response
+    final butlerResponsePlaceholder = ButlerMessage(
+      userId: 0,
+      text: "", // Start empty
+      isFromButler: true,
+      timestamp: DateTime.now(),
+    );
+
+    setState(() {
+      _messages.add(butlerResponsePlaceholder);
+    });
+    _scrollToBottom();
+
     try {
-      await client.butler.sendMessage(text);
-      await _fetchHistory(); // Refresh to get butler response
+      final stream = client.butler.chatStream(text);
+      
+      await for (final chunk in stream) {
+        setState(() {
+          butlerResponsePlaceholder.text += chunk;
+        });
+        _scrollToBottom();
+      }
+      
+      // Once stream is done, we could fetch full history to ensure sync, 
+      // but streaming updates should be enough for immediate feedback.
+      // _fetchHistory(); 
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        // Remove the placeholder if it failed completely or show error
+        setState(() {
+          butlerResponsePlaceholder.text = "I apologize, but I lost my connection. ($e)";
+        });
       }
     }
+  }
+
+  Future<void> _pickAndAnalyzeImage(ImageSource source) async {
+    try {
+      final XFile? image = await _picker.pickImage(source: source, maxWidth: 1024, maxHeight: 1024, imageQuality: 85);
+      if (image == null) return;
+
+      // Optimistic UI
+      setState(() {
+        _messages.add(ButlerMessage(
+          userId: 0,
+          text: "📷 Analyzing image...",
+          isFromButler: false,
+          timestamp: DateTime.now(),
+        ));
+      });
+      _scrollToBottom();
+
+      final bytes = await image.readAsBytes();
+      final base64Image = base64Encode(bytes);
+
+      final response = await client.butler.analyzeImage(base64Image);
+
+      setState(() {
+         _messages.add(ButlerMessage(
+          userId: 0,
+          text: response,
+          isFromButler: true,
+          timestamp: DateTime.now(),
+        ));
+      });
+      _scrollToBottom();
+      
+    } catch (e) {
+      if (mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error analyzing image: $e')));
+      }
+    }
+  }
+
+  Future<void> _pickAndAnalyzePDF() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'png', 'jpg', 'jpeg'],
+      );
+
+      if (result == null || result.files.isEmpty) return;
+
+      final file = result.files.first;
+      
+      // Check if we have a path (mobile) or bytes (web)
+      List<int> fileBytes;
+      if (file.path != null) {
+        // Mobile: Read from file path
+        final ioFile = File(file.path!);
+        fileBytes = await ioFile.readAsBytes();
+      } else if (file.bytes != null) {
+        // Web: Use bytes directly
+        fileBytes = file.bytes!;
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not read file data')),
+        );
+        return;
+      }
+
+      // Optimistic UI
+      setState(() {
+        _messages.add(ButlerMessage(
+          userId: 0,
+          text: "📄 Analyzing document: ${file.name}...",
+          isFromButler: false,
+          timestamp: DateTime.now(),
+        ));
+      });
+      _scrollToBottom();
+
+      final base64PDF = base64Encode(fileBytes);
+      final response = await client.butler.analyzeImage(base64PDF);
+
+      setState(() {
+        _messages.add(ButlerMessage(
+          userId: 0,
+          text: response,
+          isFromButler: true,
+          timestamp: DateTime.now(),
+        ));
+      });
+      _scrollToBottom();
+
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error analyzing PDF: $e')),
+        );
+      }
+    }
+  }
+
+  void _showImageSourceModal() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => GlassCard(
+        blur: 20,
+        opacity: 0.1,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Select Source",
+                style: GoogleFonts.outfit(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildSourceOption(
+                    icon: Icons.camera_alt_rounded,
+                    label: "Camera",
+                    onTap: () {
+                      Navigator.pop(context);
+                      _pickAndAnalyzeImage(ImageSource.camera);
+                    },
+                  ),
+                  _buildSourceOption(
+                    icon: Icons.photo_library_rounded,
+                    label: "Gallery",
+                    onTap: () {
+                      Navigator.pop(context);
+                      _pickAndAnalyzeImage(ImageSource.gallery);
+                    },
+                  ),
+                  _buildSourceOption(
+                    icon: Icons.description_rounded,
+                    label: "Files",
+                    onTap: () {
+                      Navigator.pop(context);
+                      _pickAndAnalyzePDF();
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSourceOption({required IconData icon, required String label, required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, size: 32, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(height: 8),
+            Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+          ],
+        ),
+      ),
+    );
   }
 
   void _scrollToBottom() {
@@ -242,7 +451,21 @@ class _ButlerScreenState extends State<ButlerScreen> {
               onSubmitted: (_) => _sendMessage(),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 8),
+          Container(
+             height: 48,
+             width: 48,
+             decoration: BoxDecoration(
+               color: theme.colorScheme.secondaryContainer,
+               shape: BoxShape.circle,
+             ),
+             child: IconButton(
+               onPressed: _showImageSourceModal,
+               icon: Icon(Icons.attach_file, color: theme.colorScheme.onSecondaryContainer, size: 22),
+               tooltip: 'Snap & Log',
+             ),
+          ),
+          const SizedBox(width: 8),
           Container(
             height: 54,
             width: 54,

@@ -8,3 +8,4 @@ fields:
   streakDays: int, default=0
   lastActionDate: DateTime?
   monthlyBudget: double, default=200.0
+  userName: String?

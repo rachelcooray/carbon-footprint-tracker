@@ -7,7 +7,7 @@ import '../business/grid_service.dart';
 import 'dart:convert';
 
 class ButlerEndpoint extends Endpoint {
-  GenerativeModel? _model;
+
 
   Future<GenerativeModel?> _getModel(Session session, String userName) async {
     // Get API key from passwords.yaml
@@ -46,6 +46,21 @@ class ButlerEndpoint extends Endpoint {
         'Butler: "The grid is currently quite green, $userName. It would be a marvelous time to run the dishwasher."\n\n'
         'IMPORTANT: Never, under any circumstances, use "sir" or "madam". Always use "$userName".'
       ),
+    );
+  }
+
+  Future<GenerativeModel?> _getVisionModel(Session session) async {
+    // Get API key from passwords.yaml
+    final apiKey = session.serverpod.getPassword('gemini_api_key');
+    if (apiKey == null) {
+      print('WARNING: gemini_api_key not found in passwords.yaml');
+      return null;
+    }
+
+    // Use gemini-2.0-flash-exp for PDF/document support in v1beta API
+    return GenerativeModel(
+      model: 'gemini-2.0-flash-exp',
+      apiKey: apiKey,
     );
   }
 
@@ -120,6 +135,69 @@ class ButlerEndpoint extends Endpoint {
     await ButlerMessage.db.insertRow(session, butlerMsg);
   }
 
+  Stream<String> chatStream(Session session, String text) async* {
+    final userInfo = await session.authenticated;
+    if (userInfo == null) return;
+    final userId = userInfo.userId;
+    
+    // Fetch user name
+    final user = await Users.findUserByUserId(session, userId);
+    final userName = user?.userName ?? "Friend";
+
+    final model = await _getModel(session, userName);
+
+    // Save user message
+    final userMsg = ButlerMessage(
+      userId: userId,
+      text: text,
+      isFromButler: false,
+      timestamp: DateTime.now(),
+    );
+    await ButlerMessage.db.insertRow(session, userMsg);
+
+    if (model == null) {
+      yield "I'm sorry, $userName, but my intellectual circuits (API Key) seem to be disconnected.";
+      return;
+    }
+
+    final content = [Content.text(text)];
+    var fullResponse = "";
+    
+    try {
+      final responseStream = model.generateContentStream(content);
+      await for (final chunk in responseStream) {
+        if (chunk.text != null) {
+          fullResponse += chunk.text!;
+          yield chunk.text!;
+        }
+      }
+      
+      // Handle Action parsing (Post-Stream)
+      if (fullResponse.contains('ACTION:')) {
+        final parts = fullResponse.split('ACTION:');
+        // We don't strip it from the stream (it's already sent), but we log it.
+        try {
+          final actionJson = jsonDecode(parts[1].trim());
+          await _logAssistantAction(session, userId, actionJson['name'], (actionJson['qty'] as num).toDouble());
+        } catch (e) {
+          print('Butler failed to parse action: $e');
+        }
+      }
+
+      // Save Butler final response
+      final butlerMsg = ButlerMessage(
+        userId: userId,
+        text: fullResponse,
+        isFromButler: true,
+        timestamp: DateTime.now(),
+      );
+      await ButlerMessage.db.insertRow(session, butlerMsg);
+
+    } catch (e) {
+      yield "I apologize, $userName, but I encountered a technical flutter: $e";
+    }
+  }
+
   Future<void> _logAssistantAction(Session session, int userId, String actionName, double qty) async {
     final action = await EcoAction.db.findFirstRow(session, where: (t) => t.name.equals(actionName));
     if (action != null) {
@@ -192,6 +270,84 @@ class ButlerEndpoint extends Endpoint {
     if (event != null && event.userId == userInfo.userId) {
       event.isResolved = true;
       await ButlerEvent.db.updateRow(session, event);
+    }
+  }
+  Future<String> analyzeImage(Session session, String base64Image) async {
+    final userInfo = await session.authenticated;
+    if (userInfo == null) return "I cannot find your dossier.";
+    
+    final userId = userInfo.userId;
+    // Fetch user name
+    final user = await Users.findUserByUserId(session, userId);
+    final userName = user?.userName ?? "Friend";
+
+    final model = await _getVisionModel(session);
+    if (model == null) return "Vision systems offline.";
+
+    try {
+      final fileBytes = base64Decode(base64Image);
+      
+      // Detect file type based on magic bytes
+      String mimeType = 'image/jpeg';
+      String fileType = 'image';
+      
+      if (fileBytes.length > 4) {
+        // PDF magic bytes: %PDF
+        if (fileBytes[0] == 0x25 && fileBytes[1] == 0x50 && fileBytes[2] == 0x44 && fileBytes[3] == 0x46) {
+          mimeType = 'application/pdf';
+          fileType = 'PDF';
+        }
+        // PNG magic bytes
+        else if (fileBytes[0] == 0x89 && fileBytes[1] == 0x50 && fileBytes[2] == 0x4E && fileBytes[3] == 0x47) {
+          mimeType = 'image/png';
+        }
+      }
+      
+      final prompt = fileType == 'PDF' 
+        ? "Analyze this PDF document efficiently. If it contains information about eco-friendly activities (energy usage, recycling data, transportation logs, meal plans), extract relevant metrics and output a short summary AND a strict ACTION line at the end: ACTION: {\"name\": \"<ActionName>\", \"qty\": <estimated_numeric_qty>}. Valid actions: Biking, Walking, Recycling, Plant-based Meal. If the document is not relevant to eco-tracking, kindly explain what you found."
+        : "Analyze this image efficiently. If it depicts a verifiable eco-friendly action (Biking, Walking, Recycling, Plant-based Meal), output a short compliment AND a strict ACTION line at the end: ACTION: {\"name\": \"<ActionName>\", \"qty\": <estimated_numeric_qty>}. If the quantity isn't clear, estimate a conservative amount (e.g. 1 meal, 5km, 1kg). If it is NOT a relevant eco-action, kindly explain what you see and why it cannot be logged.";
+
+      final content = [
+        Content.multi([
+          TextPart(prompt),
+          DataPart(mimeType, fileBytes),
+        ])
+      ];
+
+      final response = await model.generateContent(content);
+      var responseText = response.text ?? "I see the image, but I am speechless.";
+
+      // Handle Action parsing
+      if (responseText.contains('ACTION:')) {
+        final parts = responseText.split('ACTION:');
+        try {
+          final actionJson = jsonDecode(parts[1].trim());
+          await _logAssistantAction(session, userId, actionJson['name'], (actionJson['qty'] as num).toDouble());
+          responseText = parts[0].trim(); // Remove the technical ACTION line from the reply
+        } catch (e) {
+          print('Butler failed to parse vision action: $e');
+        }
+      }
+
+      // Save interaction
+      await ButlerMessage.db.insertRow(session, ButlerMessage(
+        userId: userId,
+        text: "<Image Analysis Request>",
+        isFromButler: false,
+        timestamp: DateTime.now(),
+      ));
+      
+      await ButlerMessage.db.insertRow(session, ButlerMessage(
+        userId: userId,
+        text: responseText,
+        isFromButler: true,
+        timestamp: DateTime.now(),
+      ));
+
+      return responseText;
+
+    } catch (e) {
+      return "I apologize, $userName, but I could not analyze this visual data. ($e)";
     }
   }
 }

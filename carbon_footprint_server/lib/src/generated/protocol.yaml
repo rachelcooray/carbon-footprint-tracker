@@ -4,11 +4,13 @@ action:
 butler:
   - getChatHistory:
   - sendMessage:
+  - chatStream:
   - getActiveSuggestions:
   - generateDailyBriefing:
   - getGridStatus:
   - getGridAdvice:
   - resolveEvent:
+  - analyzeImage:
 challenge:
   - getUserChallenges:
 community:

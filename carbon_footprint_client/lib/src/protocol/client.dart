@@ -72,6 +72,14 @@ class EndpointButler extends _i1.EndpointRef {
         {'text': text},
       );
 
+  _i2.Stream<String> chatStream(String text) =>
+      caller.callStreamingServerEndpoint<_i2.Stream<String>, String>(
+        'butler',
+        'chatStream',
+        {'text': text},
+        {},
+      );
+
   _i2.Future<List<_i5.ButlerEvent>> getActiveSuggestions() =>
       caller.callServerEndpoint<List<_i5.ButlerEvent>>(
         'butler',
@@ -102,6 +110,13 @@ class EndpointButler extends _i1.EndpointRef {
         'butler',
         'resolveEvent',
         {'eventId': eventId},
+      );
+
+  _i2.Future<String> analyzeImage(String base64Image) =>
+      caller.callServerEndpoint<String>(
+        'butler',
+        'analyzeImage',
+        {'base64Image': base64Image},
       );
 }
 

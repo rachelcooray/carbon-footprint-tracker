@@ -64,7 +64,6 @@ class StatsEndpoint extends Endpoint {
       orderDescending: true,
       limit: 10,
     );
-    print('DEBUG: getLeaderboard found ${results.length} profiles');
     return results;
   }
 
@@ -85,9 +84,14 @@ class StatsEndpoint extends Endpoint {
     if (userInfo == null) return;
     final userId = userInfo.userId;
 
+    // Fetch user name to store in profile
+    final user = await Users.findUserByUserId(session, userId);
+    final userName = user?.userName ?? "Friend";
+
     final profile = await UserProfile.db.findFirstRow(session, where: (t) => t.userId.equals(userId));
     if (profile != null) {
       profile.monthlyBudget = budget;
+      profile.userName = userName; // Update name
       await UserProfile.db.updateRow(session, profile);
     } else {
       // Create profile if it doesn't exist
@@ -98,6 +102,7 @@ class StatsEndpoint extends Endpoint {
         level: 1,
         streakDays: 0,
         monthlyBudget: budget,
+        userName: userName, // Set name
       ));
     }
 

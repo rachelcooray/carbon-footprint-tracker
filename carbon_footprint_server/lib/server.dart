@@ -2,6 +2,8 @@ import 'package:carbon_footprint_server/src/birthday_reminder.dart';
 import 'package:carbon_footprint_server/src/future_calls/midnight_audit.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart' as auth;
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server.dart';
 
 import 'package:carbon_footprint_server/src/web/routes/root.dart';
 
@@ -22,15 +24,61 @@ void run(List<String> args) async {
   );
 
   // Configure Authentication
+  // Configure Authentication with Gmail SMTP
+  const gmailEmail = 'rachelcooraytest@gmail.com';
+  const gmailPassword = 'vabm vqud ohek mubi'; // App Password
+
+  final smtpServer = gmail(gmailEmail, gmailPassword);
+
   auth.AuthConfig.set(auth.AuthConfig(
     sendValidationEmail: (session, email, validationCode) async {
-      // In development, we just print the code to the console.
-      print('--- VALIDATION CODE FOR $email: $validationCode ---');
-      return true;
+      final message = Message()
+        ..from = Address(gmailEmail, 'Carbon Butler')
+        ..recipients.add(email)
+        ..subject = 'Verify your Carbon Tracker Account'
+        ..html = '''
+          <h3>Welcome to Carbon Tracker! 🌿</h3>
+          <p>Your verification code is:</p>
+          <h1>$validationCode</h1>
+          <p>Please enter this code in the app to activate your account.</p>
+          <br>
+          <p><i>- The Carbon Tracker Team</i></p>
+        ''';
+
+      try {
+        final sendReport = await send(message, smtpServer);
+        print('Message sent: ${sendReport.toString()}');
+        return true;
+      } catch (e) {
+        print('Message not sent. \n${e.toString()}');
+        return false;
+      }
     },
     sendPasswordResetEmail: (session, userInfo, validationCode) async {
-      print('--- PASSWORD RESET CODE FOR ${userInfo.email}: $validationCode ---');
-      return true;
+      final email = userInfo.email;
+      if (email == null) return false;
+
+      final message = Message()
+        ..from = Address(gmailEmail, 'Carbon Butler')
+        ..recipients.add(email)
+        ..subject = 'Reset your Password'
+        ..html = '''
+          <h3>Password Reset Request 🔐</h3>
+          <p>Your password reset code is:</p>
+          <h1>$validationCode</h1>
+          <p>If you did not request this, please ignore this email.</p>
+          <br>
+          <p><i>- The Carbon Tracker Team</i></p>
+        ''';
+
+      try {
+        final sendReport = await send(message, smtpServer);
+        print('Reset message sent: ${sendReport.toString()}');
+        return true;
+      } catch (e) {
+        print('Reset message not sent. \n${e.toString()}');
+        return false;
+      }
     },
   ));
 

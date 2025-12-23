@@ -696,6 +696,12 @@ class Protocol extends _i1.SerializationManagerServer {
           dartType: 'double',
           columnDefault: '200.0',
         ),
+        _i2.ColumnDefinition(
+          name: 'userName',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
       ],
       foreignKeys: [],
       indexes: [

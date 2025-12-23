@@ -54,8 +54,14 @@ class _SocialContentState extends State<SocialContent> {
       child: Column(
         children: [
           TabBar(
-            labelColor: Theme.of(context).primaryColor,
-            unselectedLabelColor: Colors.grey,
+            // labelColor: Theme.of(context).primaryColor,
+            // unselectedLabelColor: Colors.grey,
+            labelColor: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white
+                : Theme.of(context).primaryColor,
+            unselectedLabelColor: Theme.of(context).brightness == Brightness.dark
+                ? Colors.grey[400]
+                : Colors.grey,
             tabs: const [
               Tab(text: 'Feed', icon: Icon(Icons.forum_outlined)),
               Tab(text: 'Leaderboard', icon: Icon(Icons.leaderboard_outlined)),
@@ -119,7 +125,12 @@ class _SocialContentState extends State<SocialContent> {
             child: ListTile(
               leading: CircleAvatar(
                 backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                child: Icon(Icons.person, color: Theme.of(context).primaryColor),
+                child: Icon(
+                  Icons.person, 
+                  color: Theme.of(context).brightness == Brightness.dark 
+                    ? Colors.white 
+                    : Theme.of(context).primaryColor,
+                ),
               ),
               title: Text(post.userName ?? 'Anonymous User', style: const TextStyle(fontWeight: FontWeight.bold)),
               subtitle: Column(
@@ -154,7 +165,7 @@ class _SocialContentState extends State<SocialContent> {
             backgroundColor: isMe ? Colors.green : Theme.of(context).cardColor,
             child: Text('${index + 1}', style: TextStyle(color: isMe ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color)),
           ),
-          title: Text(isMe ? 'You' : 'User #${user.userId}'),
+          title: Text(isMe ? 'You (${user.userName ?? "Anonymous"})' : (user.userName ?? 'User #${user.userId}')),
           subtitle: Text('Level ${user.level} • Joined ${user.joinedDate.toString().split(" ")[0]}'),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
