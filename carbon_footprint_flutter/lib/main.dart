@@ -15,19 +15,25 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   const serverUrlFromEnv = String.fromEnvironment('SERVER_URL');
-  final serverUrl =
+  final rawServerUrl =
       serverUrlFromEnv.isEmpty ? 'http://localhost:8080/' : serverUrlFromEnv;
+  final serverUrl = rawServerUrl.endsWith('/') ? rawServerUrl : '$rawServerUrl/';
 
   client = Client(
     serverUrl,
-     authenticationKeyManager: FlutterAuthenticationKeyManager(),
+    authenticationKeyManager: FlutterAuthenticationKeyManager(),
   )..connectivityMonitor = FlutterConnectivityMonitor();
 
   // Initialize Session Manager
   sessionManager = SessionManager(
     caller: client.modules.auth,
   );
-  await sessionManager.initialize();
+  
+  try {
+    await sessionManager.initialize().timeout(const Duration(seconds: 5));
+  } catch (e) {
+    debugPrint('Session initialization failed: $e');
+  }
 
   runApp(const MyApp());
 }

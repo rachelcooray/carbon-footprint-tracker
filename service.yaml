@@ -1,0 +1,126 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  annotations:
+    run.googleapis.com/client-name: gcloud
+    run.googleapis.com/client-version: 537.0.0
+    run.googleapis.com/ingress: all
+    run.googleapis.com/ingress-status: all
+    run.googleapis.com/maxScale: '3'
+    run.googleapis.com/operation-id: e9ab1957-56fe-43a1-a6d4-13501bd5425f
+    run.googleapis.com/urls: '["https://carbon-footprint-server-436431234864.us-central1.run.app"]'
+    serving.knative.dev/creator: rachelcooray@gmail.com
+    serving.knative.dev/lastModifier: rachelcooray@gmail.com
+  creationTimestamp: '2025-12-24T08:32:26.743817Z'
+  generation: 19
+  labels:
+    cloud.googleapis.com/location: us-central1
+  name: carbon-footprint-server
+  namespace: '436431234864'
+  resourceVersion: AAZGsZ5iIk8
+  selfLink: /apis/serving.knative.dev/v1/namespaces/436431234864/services/carbon-footprint-server
+  uid: 27d6410a-fb5c-4897-9468-1e0f89ea7bd7
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/maxScale: '3'
+        run.googleapis.com/client-name: gcloud
+        run.googleapis.com/client-version: 537.0.0
+        run.googleapis.com/cloudsql-instances: carbon-butler-1766563332:us-central1:carbon-footprint-db
+        run.googleapis.com/startup-cpu-boost: 'true'
+      labels:
+        client.knative.dev/nonce: tdkmlzvcpt
+        run.googleapis.com/startupProbeType: Default
+    spec:
+      containerConcurrency: 80
+      containers:
+      - command: ["./server"]
+        args:
+        - --mode
+        - production
+        - --server-id
+        - default
+        - --logging
+        - normal
+        - --role
+        - monolith
+        - --apply-migrations
+        env:
+        - name: SERVERPOD_DATABASE_HOST
+          value: /cloudsql/carbon-butler-1766563332:us-central1:carbon-footprint-db
+        - name: SERVERPOD_DATABASE_NAME
+          value: serverpod
+        - name: SERVERPOD_DATABASE_USER
+          value: postgres
+        - name: SERVERPOD_PORT
+          value: "8080"
+        - name: SERVERPOD_DATABASE_PORT
+          value: "5432"
+        - name: SERVERPOD_DATABASE_IS_UNIX_SOCKET
+          value: 'true'
+        - name: DEPLOY_ATTEMPT
+          value: tcp_localhost_fix
+        - name: SERVERPOD_DATABASE_PASSWORD
+          value: EcoButlerPass2025!
+        - name: SERVERPOD_PASSWORDS_DATABASE
+          value: EcoButlerPass2025!
+        - name: SERVERPOD_SESSION_PERSISTENT_LOG_ENABLED
+          value: 'true'
+        - name: SERVERPOD_SESSION_CONSOLE_LOG_ENABLED
+          value: 'true'
+        - name: SERVERPOD_PASSWORDS_GEMINI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: SERVERPOD_GEMINI_API_KEY
+        image: us-central1-docker.pkg.dev/carbon-butler-1766563332/carbon-footprint-repo/server:latest
+        ports:
+        - containerPort: 8080
+          name: http1
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 512Mi
+        startupProbe:
+          failureThreshold: 1
+          periodSeconds: 240
+          tcpSocket:
+            port: 8080
+          timeoutSeconds: 240
+      serviceAccountName: 436431234864-compute@developer.gserviceaccount.com
+      timeoutSeconds: 300
+  traffic:
+  - latestRevision: true
+    percent: 100
+status:
+  conditions:
+  - lastTransitionTime: '2025-12-24T12:15:40.623384Z'
+    message: |-
+      The user-provided container failed to start and listen on the port defined provided by the PORT=8080 environment variable within the allocated timeout. This can happen when the container port is misconfigured or if the timeout is too short. The health check timeout can be extended. Logs for this revision might contain more information.
+
+      Logs URL: https://console.cloud.google.com/logs/viewer?project=carbon-butler-1766563332&resource=cloud_run_revision/service_name/carbon-footprint-server/revision_name/carbon-footprint-server-00019-5zj&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22carbon-footprint-server%22%0Aresource.labels.revision_name%3D%22carbon-footprint-server-00019-5zj%22 
+      For more troubleshooting guidance, see https://cloud.google.com/run/docs/troubleshooting#container-failed-to-start
+    reason: HealthCheckContainerError
+    status: 'False'
+    type: Ready
+  - lastTransitionTime: '2025-12-24T12:15:40.556824Z'
+    message: |-
+      The user-provided container failed to start and listen on the port defined provided by the PORT=8080 environment variable within the allocated timeout. This can happen when the container port is misconfigured or if the timeout is too short. The health check timeout can be extended. Logs for this revision might contain more information.
+
+      Logs URL: https://console.cloud.google.com/logs/viewer?project=carbon-butler-1766563332&resource=cloud_run_revision/service_name/carbon-footprint-server/revision_name/carbon-footprint-server-00019-5zj&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22carbon-footprint-server%22%0Aresource.labels.revision_name%3D%22carbon-footprint-server-00019-5zj%22 
+      For more troubleshooting guidance, see https://cloud.google.com/run/docs/troubleshooting#container-failed-to-start
+    reason: HealthCheckContainerError
+    status: 'False'
+    type: ConfigurationsReady
+  - lastTransitionTime: '2025-12-24T12:15:40.623384Z'
+    message: |-
+      The user-provided container failed to start and listen on the port defined provided by the PORT=8080 environment variable within the allocated timeout. This can happen when the container port is misconfigured or if the timeout is too short. The health check timeout can be extended. Logs for this revision might contain more information.
+
+      Logs URL: https://console.cloud.google.com/logs/viewer?project=carbon-butler-1766563332&resource=cloud_run_revision/service_name/carbon-footprint-server/revision_name/carbon-footprint-server-00019-5zj&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22carbon-footprint-server%22%0Aresource.labels.revision_name%3D%22carbon-footprint-server-00019-5zj%22 
+      For more troubleshooting guidance, see https://cloud.google.com/run/docs/troubleshooting#container-failed-to-start
+    reason: HealthCheckContainerError
+    status: 'False'
+    type: RoutesReady
+  latestCreatedRevisionName: carbon-footprint-server-00019-5zj
+  observedGeneration: 19

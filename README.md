@@ -11,8 +11,8 @@ This application is designed to help users track, visualize, and reduce their ca
 *   **Eco Dashboard**: Real-time visualization of your carbon budget, remaining allowance, and current forest status.
 *   **The Forest**: A visual representation of your progress. As your Eco Score grows, your forest evolves from a "Fledgling Woods" to an "Earth Guardian Realm."
 *   **Eco-Envisioning Simulator**: A powerful tool to project future savings by simulating lifestyle changes like Solar installation or EV adoption.
-*   **Action Logging**: Quickly log daily activities (transport, diet, energy) to see immediate impact.
-*   **Social & Global Impact**: compete on leaderboards and see the collective CO2 savings of the entire community.
+*   **Action Logging & PDF Vision**: Log actions manually or simply **upload a PDF energy bill** or a meal photo. The AI extracts the data automatically.
+*   **Social & Global Impact**: Compete on leaderboards and see the collective CO2 savings of the entire community.
 *   **Global Refresh**: Instantly sync your data across the entire app with a single tap.
 
 ---
@@ -21,9 +21,9 @@ This application is designed to help users track, visualize, and reduce their ca
 
 Meeting you at the intersection of technology and service, the **Eco Butler** is your proactive AI assistant powered by **Google Gemini**.
 
-*   **Morning Briefings**: Starts your day with a personalized summary of yesterday's impact and a motivational quote or tip.
+*   **Context-Aware Briefings**: Not just a morning greeting—the Butler recognizes if it's afternoon, evening, or night, adjusting its tone and UI theme accordingly.
 *   **Smart Nudges**: Noticed you missed logging lunch? The Butler politely reminds you to stay on track.
-*   **Voice & Personality**: Far from a robot, the Butler speaks with a formal, encouraging, and occasionally witty tone, making every interaction feel premium.
+*   **Photo & PDF Intelligence**: Far from a simple chatbot, the Butler can "see" your documents and photos to help you log actions effortlessly.
 *   **Insights**: Analyzes your data patterns to offer tailored advice (e.g., "I notice your transport emissions peak on Tuesdays...").
 
 ---
