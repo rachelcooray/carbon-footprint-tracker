@@ -7,6 +7,7 @@ butler:
   - chatStream:
   - getActiveSuggestions:
   - generateDailyBriefing:
+  - briefingStream:
   - getGridStatus:
   - getGridAdvice:
   - resolveEvent:

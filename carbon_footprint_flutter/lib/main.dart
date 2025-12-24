@@ -14,11 +14,9 @@ final refreshNotifier = ValueNotifier<int>(0); // Global Refresh Signal
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Points to Serverpod Cloud API
   const serverUrlFromEnv = String.fromEnvironment('SERVER_URL');
-  final serverUrl = serverUrlFromEnv.isEmpty 
-      ? 'https://carbon-footprint-tracker.api.serverpod.space/' 
-      : serverUrlFromEnv;
+  final serverUrl =
+      serverUrlFromEnv.isEmpty ? 'http://localhost:8080/' : serverUrlFromEnv;
 
   client = Client(
     serverUrl,

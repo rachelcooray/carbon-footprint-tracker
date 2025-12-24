@@ -15,11 +15,34 @@ class _MorningBriefingScreenState extends State<MorningBriefingScreen> with Sing
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
 
+  String _getTimeContext() {
+    final now = DateTime.now();
+    if (now.hour >= 5 && now.hour < 12) return "morning";
+    if (now.hour >= 12 && now.hour < 17) return "afternoon";
+    if (now.hour >= 17 && now.hour < 21) return "evening";
+    return "night";
+  }
+
+  IconData _getTimeIcon() {
+    final now = DateTime.now();
+    if (now.hour >= 5 && now.hour < 17) return Icons.wb_sunny_outlined;
+    if (now.hour >= 17 && now.hour < 21) return Icons.wb_twilight_outlined;
+    return Icons.nightlight_round_outlined;
+  }
+
+  Color _getTimeIconColor() {
+    final now = DateTime.now();
+    if (now.hour >= 5 && now.hour < 17) return Colors.orange;
+    if (now.hour >= 17 && now.hour < 21) return Colors.deepOrangeAccent;
+    return Colors.blueAccent;
+  }
+
   @override
   void initState() {
     super.initState();
     final userName = sessionManager.signedInUser?.userName ?? "Friend";
-    _briefingText = "Good morning, $userName! I am preparing your environmental dossier for the day...";
+    final context = _getTimeContext();
+    _briefingText = "Good $context, $userName! I am preparing your environmental dossier for the $context...";
     _controller = AnimationController(vsync: this, duration: const Duration(seconds: 1));
     _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _fetchBriefing();
@@ -38,8 +61,9 @@ class _MorningBriefingScreenState extends State<MorningBriefingScreen> with Sing
     } catch (e) {
       if (mounted) {
         final userName = sessionManager.signedInUser?.userName ?? "Friend";
+        final context = _getTimeContext();
         setState(() {
-          _briefingText = "Good morning, $userName. Let us embark on another day of noble environmental preservation.";
+          _briefingText = "Good $context, $userName. Let us embark on another $context of noble environmental preservation.";
           _isLoading = false;
         });
         _controller.forward();
@@ -55,6 +79,9 @@ class _MorningBriefingScreenState extends State<MorningBriefingScreen> with Sing
 
   @override
   Widget build(BuildContext context) {
+    final timeContext = _getTimeContext();
+    final capitalizedContext = timeContext[0].toUpperCase() + timeContext.substring(1);
+    
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Stack(
@@ -80,16 +107,19 @@ class _MorningBriefingScreenState extends State<MorningBriefingScreen> with Sing
                           color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.wb_sunny_outlined, size: 48, color: Colors.orange),
+                        child: Icon(_getTimeIcon(), size: 48, color: _getTimeIconColor()),
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        'Morning Briefing',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                        '$capitalizedContext Briefing',
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white, // Force white for visibility on dark overlay
+                        ),
                       ),
                       const SizedBox(height: 20),
                       if (_isLoading)
-                        const CircularProgressIndicator()
+                        const CircularProgressIndicator(color: Colors.white70)
                       else
                         Text(
                           _briefingText,
@@ -98,7 +128,7 @@ class _MorningBriefingScreenState extends State<MorningBriefingScreen> with Sing
                             fontSize: 16, 
                             height: 1.6, 
                             fontStyle: FontStyle.italic,
-                            color: Colors.white.withValues(alpha: 0.9), // Ensure white on dark overlay
+                            color: Colors.white70, // Consistent light grey/white
                           ),
                         ),
                       const SizedBox(height: 32),

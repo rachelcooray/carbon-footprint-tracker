@@ -252,6 +252,19 @@ class Endpoints extends _i1.EndpointDispatch {
             params['text'],
           ),
         ),
+        'briefingStream': _i1.MethodStreamConnector(
+          name: 'briefingStream',
+          params: {},
+          streamParams: {},
+          returnType: _i1.MethodStreamReturnType.streamType,
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+            Map<String, Stream> streamParams,
+          ) =>
+              (endpoints['butler'] as _i3.ButlerEndpoint)
+                  .briefingStream(session),
+        ),
       },
     );
     connectors['challenge'] = _i1.EndpointConnector(

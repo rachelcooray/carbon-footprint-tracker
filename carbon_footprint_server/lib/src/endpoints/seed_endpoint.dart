@@ -42,14 +42,15 @@ class SeedEndpoint extends Endpoint {
         ));
       }
 
-      // 3. Seed Mock User Profiles (Mocks 2, 3, 4)
-      for (int i = 2; i <= 4; i++) {
+      // 3. Seed Mock User Profiles (Mocks 9002, 9003, 9004 for leaderboard variety)
+      for (int i = 9002; i <= 9004; i++) {
         final existing = await UserProfile.db.findFirstRow(session, where: (t) => t.userId.equals(i));
         if (existing == null) {
           await UserProfile.db.insertRow(session, UserProfile(
             userId: i, 
-            ecoScore: (i * 500) + 100, 
-            joinedDate: DateTime.now().subtract(Duration(days: i * 10))
+            ecoScore: ((i - 9000) * 500) + 100, 
+            joinedDate: DateTime.now().subtract(Duration(days: (i - 9000) * 10)),
+            userName: i == 9002 ? 'Eco Legend' : (i == 9003 ? 'Forest Guardian' : 'Green Scout'),
           ));
         }
       }

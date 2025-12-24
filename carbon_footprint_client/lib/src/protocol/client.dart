@@ -94,6 +94,14 @@ class EndpointButler extends _i1.EndpointRef {
         {},
       );
 
+  _i2.Stream<String> briefingStream() =>
+      caller.callStreamingServerEndpoint<_i2.Stream<String>, String>(
+        'butler',
+        'briefingStream',
+        {},
+        {},
+      );
+
   _i2.Future<String> getGridStatus() => caller.callServerEndpoint<String>(
         'butler',
         'getGridStatus',

@@ -172,15 +172,19 @@ class ButlerEndpoint extends Endpoint {
         }
       }
       
-      // Handle Action parsing (Post-Stream)
+      // Handle Action parsing (Post-Stream) - Support multiple actions
       if (fullResponse.contains('ACTION:')) {
         final parts = fullResponse.split('ACTION:');
-        // We don't strip it from the stream (it's already sent), but we log it.
-        try {
-          final actionJson = jsonDecode(parts[1].trim());
-          await _logAssistantAction(session, userId, actionJson['name'], (actionJson['qty'] as num).toDouble());
-        } catch (e) {
-          print('Butler failed to parse action: $e');
+        for (int i = 1; i < parts.length; i++) {
+          try {
+            final part = parts[i].trim();
+            final lines = part.split('\n');
+            final jsonStr = lines[0].trim();
+            final actionJson = jsonDecode(jsonStr);
+            await _logAssistantAction(session, userId, actionJson['name'], (actionJson['qty'] as num).toDouble());
+          } catch (e) {
+            print('Butler failed to parse action $i from stream: $e');
+          }
         }
       }
 
@@ -237,9 +241,26 @@ class ButlerEndpoint extends Endpoint {
     final profile = await UserProfile.db.findFirstRow(session, where: (t) => t.userId.equals(userId));
     final gridAdvice = GridService.getGridAdvice();
     
+    // Determine time of day
+    final now = DateTime.now();
+    String timeContext = "morning";
+    if (now.hour >= 12 && now.hour < 17) {
+      timeContext = "afternoon";
+    } else if (now.hour >= 17 && now.hour < 21) {
+      timeContext = "evening";
+    } else if (now.hour >= 21 || now.hour < 5) {
+      timeContext = "night";
+    }
+
     final prompt = 'User Data: Level ${profile?.level ?? 1}, Eco Score ${profile?.ecoScore ?? 0}, Streak ${profile?.streakDays ?? 0}. '
         'Energy Grid Status: $gridAdvice. '
-        'Generate a formal, exceptionally polite morning briefing (max 3 sentences) for $userName. '
+        'Current time: ${now.hour}:${now.minute}. '
+        'Time Context: $timeContext. '
+        'Generate a formal, exceptionally polite $timeContext briefing (max 3 sentences) for $userName. '
+        'CRITICAL RULE: You MUST use a greeting appropriate for the $timeContext. '
+        'If the context is "afternoon", you MUST say "Good afternoon" or "A pleasant afternoon". '
+        'If "evening", say "Good evening". If "night", say "Good night". '
+        'DO NOT use the word "morning" unless the Time Context is explicitly "morning". '
         'STYLE RULES: Randomly select a tone: Philosophical (nature-focused), Technical (grid/metrics focused), Celebratory (streak/level focused), or Encouraging (warm/supportive). '
         'STRUCTURE RULES: Each briefing must follow a different pattern: [Greeting + Impact Stat + Personal Tip], [Insight + Encouragement + Action Quest], or [Reflection + Grid Warning + Kind Suggestion]. '
         'Always maintain the refined "Eco Butler" persona, never use "sir" or "madam", and ensure this briefing is strikingly different from any other.';
@@ -248,9 +269,61 @@ class ButlerEndpoint extends Endpoint {
     
     try {
       final response = await model.generateContent([Content.text(prompt)]);
-      return response.text ?? "A fine morning to you, $userName. Let us protect the planet today.";
+      return response.text ?? "A fine $timeContext to you, $userName. Let us protect the planet.";
     } catch (e) {
-      return "Good morning, $userName. I have your schedule ready for a green day ahead.";
+      return "Greetings for the $timeContext, $userName. I have your dossier ready for a green $timeContext ahead.";
+    }
+  }
+
+  Stream<String> briefingStream(Session session) async* {
+    final userInfo = await session.authenticated;
+    if (userInfo == null) return;
+    final userId = userInfo.userId;
+    
+    final user = await Users.findUserByUserId(session, userId);
+    final userName = user?.userName ?? "Friend";
+
+    final model = await _getModel(session, userName);
+    if (model == null) {
+      yield "I apologize, $userName, but my generative facilities are offline.";
+      return;
+    }
+    
+    // Fetch context
+    final profile = await UserProfile.db.findFirstRow(session, where: (t) => t.userId.equals(userId));
+    final gridAdvice = GridService.getGridAdvice();
+    
+    // Determine time of day
+    final now = DateTime.now();
+    String timeContext = "morning";
+    if (now.hour >= 12 && now.hour < 17) {
+      timeContext = "afternoon";
+    } else if (now.hour >= 17 && now.hour < 21) {
+      timeContext = "evening";
+    } else if (now.hour >= 21 || now.hour < 5) {
+      timeContext = "night";
+    }
+
+    final prompt = 'User Data: Level ${profile?.level ?? 1}, Eco Score ${profile?.ecoScore ?? 0}, Streak ${profile?.streakDays ?? 0}. '
+        'Energy Grid Status: $gridAdvice. '
+        'Current time: ${now.hour}:${now.minute}. '
+        'Time Context: $timeContext. '
+        'Generate a formal, exceptionally polite $timeContext briefing (max 3 sentences) for $userName. '
+        'CRITICAL RULE: You MUST use a greeting appropriate for the $timeContext. '
+        'If the context is "afternoon", you MUST say "Good afternoon" or "A pleasant afternoon". '
+        'If "evening", say "Good evening". If "night", say "Good night". '
+        'DO NOT use the word "morning" unless the Time Context is explicitly "morning". '
+        'STYLE RULES: Randomly select a tone: Philosophical (nature-focused), Technical (grid/metrics focused), Celebratory (streak/level focused), or Encouraging (warm/supportive). '
+        'STRUCTURE RULES: Each briefing must follow a different pattern: [Greeting + Impact Stat + Personal Tip], [Insight + Encouragement + Action Quest], or [Reflection + Grid Warning + Kind Suggestion]. '
+        'Always maintain the refined "Eco Butler" persona, never use "sir" or "madam", and ensure this briefing is strikingly different from any other.';
+
+    try {
+      final responseStream = model.generateContentStream([Content.text(prompt)]);
+      await for (final chunk in responseStream) {
+        if (chunk.text != null) yield chunk.text!;
+      }
+    } catch (e) {
+      yield "Greetings for the $timeContext, $userName. I have your dossier ready for a green $timeContext ahead.";
     }
   }
 
@@ -304,8 +377,8 @@ class ButlerEndpoint extends Endpoint {
       }
       
       final prompt = fileType == 'PDF' 
-        ? "Analyze this PDF document efficiently. If it contains information about eco-friendly activities (energy usage, recycling data, transportation logs, meal plans), extract relevant metrics and output a short summary AND a strict ACTION line at the end: ACTION: {\"name\": \"<ActionName>\", \"qty\": <estimated_numeric_qty>}. Valid actions: Biking, Walking, Recycling, Plant-based Meal. If the document is not relevant to eco-tracking, kindly explain what you found."
-        : "Analyze this image efficiently. If it depicts a verifiable eco-friendly action (Biking, Walking, Recycling, Plant-based Meal), output a short compliment AND a strict ACTION line at the end: ACTION: {\"name\": \"<ActionName>\", \"qty\": <estimated_numeric_qty>}. If the quantity isn't clear, estimate a conservative amount (e.g. 1 meal, 5km, 1kg). If it is NOT a relevant eco-action, kindly explain what you see and why it cannot be logged.";
+        ? "Analyze this PDF document efficiently. If it contains information about eco-friendly activities (energy usage, recycling data, transportation logs, meal plans), extract CO2 impacting metrics. Output a short summary AND one or more strict ACTION lines at the end for each activity found: ACTION: {\"name\": \"<ActionName>\", \"qty\": <estimated_numeric_qty>}. Valid actions: Biking, Walking, Recycling, Plant-based Meal. If the document is not relevant to eco-tracking, kindly explain what you found."
+        : "Analyze this image efficiently. If it depicts one or more verifiable eco-friendly actions (Biking, Walking, Recycling, Plant-based Meal), output a short compliment AND a separate strict ACTION line for EACH action found: ACTION: {\"name\": \"<ActionName>\", \"qty\": <estimated_numeric_qty>}. If the quantity isn't clear, estimate a conservative amount (e.g. 1 meal, 5km, 1kg). If it is NOT a relevant eco-action, kindly explain what you see and why it cannot be logged.";
 
       final content = [
         Content.multi([
@@ -317,16 +390,21 @@ class ButlerEndpoint extends Endpoint {
       final response = await model.generateContent(content);
       var responseText = response.text ?? "I see the image, but I am speechless.";
 
-      // Handle Action parsing
+      // Handle Action parsing - Support multiple actions
       if (responseText.contains('ACTION:')) {
         final parts = responseText.split('ACTION:');
-        try {
-          final actionJson = jsonDecode(parts[1].trim());
-          await _logAssistantAction(session, userId, actionJson['name'], (actionJson['qty'] as num).toDouble());
-          responseText = parts[0].trim(); // Remove the technical ACTION line from the reply
-        } catch (e) {
-          print('Butler failed to parse vision action: $e');
+        for (int i = 1; i < parts.length; i++) {
+          try {
+            final part = parts[i].trim();
+            final lines = part.split('\n');
+            final jsonStr = lines[0].trim();
+            final actionJson = jsonDecode(jsonStr);
+            await _logAssistantAction(session, userId, actionJson['name'], (actionJson['qty'] as num).toDouble());
+          } catch (e) {
+            print('Butler failed to parse vision action $i: $e');
+          }
         }
+        responseText = parts[0].trim(); // Remove the technical ACTION lines from the reply
       }
 
       // Save interaction
