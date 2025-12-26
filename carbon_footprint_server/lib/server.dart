@@ -51,7 +51,10 @@ void run(List<String> args) async {
         return true;
       } catch (e) {
         print('Message not sent. \n${e.toString()}');
-        return false;
+        print('-------------------------------------------');
+        print('FALLBACK VALIDATION CODE: $validationCode');
+        print('-------------------------------------------');
+        return true; // Allow flow to continue for hackathon/demo
       }
     },
     sendPasswordResetEmail: (session, userInfo, validationCode) async {
@@ -77,7 +80,10 @@ void run(List<String> args) async {
         return true;
       } catch (e) {
         print('Reset message not sent. \n${e.toString()}');
-        return false;
+        print('-------------------------------------------');
+        print('FALLBACK RESET CODE: $validationCode');
+        print('-------------------------------------------');
+        return true; // Allow flow to continue
       }
     },
   ));
