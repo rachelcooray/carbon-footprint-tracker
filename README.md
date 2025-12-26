@@ -110,14 +110,14 @@ This project is built for the **Flutter Butler Hackathon**.
 - [x] **Project Built with Flutter + Serverpod**: Core stack confirmed.
 - [x] **The Butler Theme**: Managed via `Eco Butler` AI implementation in `butler_endpoint.dart`.
 - [x] **Functionality**: Fully implemented dashboard, forest evolution, and AI briefings.
-- [ ] **Repository URL**: [Insert your Repo URL here]
+- [x] **Repository URL**: [https://github.com/rachelcooray/carbon-footprint-tracker](https://github.com/rachelcooray/carbon-footprint-tracker)
 - [ ] **Demo Video**: [Insert your Video Link here]
 
 ---
 
 ## 🏗️ System Architecture
 
-![System Architecture Diagram](assets/system_architecture_diagram.png)
+![System Architecture Diagram](carbon_footprint/assets/system_architecture_diagram.png)
 
 ## 🚀 Technical Stack
 
