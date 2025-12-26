@@ -236,7 +236,7 @@ class ButlerEndpoint extends Endpoint {
     );
   }
 
-  Future<String> generateDailyBriefing(Session session) async {
+  Future<String> generateDailyBriefing(Session session, String clientTimeContext) async {
     final userInfo = await session.authenticated;
     if (userInfo == null) return "I cannot find your dossier.";
 
@@ -250,16 +250,9 @@ class ButlerEndpoint extends Endpoint {
     final profile = await UserProfile.db.findFirstRow(session, where: (t) => t.userId.equals(userId));
     final gridAdvice = GridService.getGridAdvice();
     
-    // Determine time of day
+    // Use client provided time context
+    final timeContext = clientTimeContext;
     final now = DateTime.now();
-    String timeContext = "morning";
-    if (now.hour >= 12 && now.hour < 17) {
-      timeContext = "afternoon";
-    } else if (now.hour >= 17 && now.hour < 21) {
-      timeContext = "evening";
-    } else if (now.hour >= 21 || now.hour < 5) {
-      timeContext = "night";
-    }
 
     final prompt = 'User Data: Level ${profile?.level ?? 1}, Eco Score ${profile?.ecoScore ?? 0}, Streak ${profile?.streakDays ?? 0}. '
         'Energy Grid Status: $gridAdvice. '

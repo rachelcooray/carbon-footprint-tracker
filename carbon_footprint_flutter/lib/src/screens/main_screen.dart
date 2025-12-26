@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../main.dart'; // For sessionManager
 import 'dashboard_content.dart';
+import '../widgets/web_center_wrapper.dart';
 import 'challenges_content.dart';
 import 'social_content.dart';
 import 'log_action_screen.dart';
@@ -122,10 +123,12 @@ class _MainScreenState extends State<MainScreen> {
           const SizedBox(width: 8),
         ],
       ),
-      body: IndexedStack(
-        key: _key,
-        index: _currentIndex,
-        children: _pages,
+      body: WebCenterWrapper(
+        child: IndexedStack(
+          key: _key,
+          index: _currentIndex,
+          children: _pages,
+        ),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,

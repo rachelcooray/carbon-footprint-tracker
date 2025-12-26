@@ -136,7 +136,10 @@ class _DashboardContentState extends State<DashboardContent> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('Eco Score', style: GoogleFonts.outfit(color: Colors.white.withValues(alpha: 0.8), fontSize: 14, fontWeight: FontWeight.w600, letterSpacing: 1.2)),
-                              Text('$ecoScore', style: const TextStyle(color: Colors.white, fontSize: 64, fontWeight: FontWeight.w900, letterSpacing: -3)),
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text('$ecoScore', style: const TextStyle(color: Colors.white, fontSize: 64, fontWeight: FontWeight.w900, letterSpacing: -3)),
+                              ),
                             ],
                           ),
                           Container(

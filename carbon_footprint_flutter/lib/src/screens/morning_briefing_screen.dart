@@ -50,7 +50,7 @@ class _MorningBriefingScreenState extends State<MorningBriefingScreen> with Sing
 
   Future<void> _fetchBriefing() async {
     try {
-      final text = await client.butler.generateDailyBriefing();
+      final text = await client.butler.generateDailyBriefing(_getTimeContext());
       if (mounted) {
         setState(() {
           _briefingText = text;
@@ -97,53 +97,56 @@ class _MorningBriefingScreenState extends State<MorningBriefingScreen> with Sing
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: FadeTransition(
                 opacity: _fadeAnimation,
-                child: GlassCard(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 500),
+                  child: GlassCard(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(_getTimeIcon(), size: 48, color: _getTimeIconColor()),
                         ),
-                        child: Icon(_getTimeIcon(), size: 48, color: _getTimeIconColor()),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        '$capitalizedContext Briefing',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white, // Force white for visibility on dark overlay
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      if (_isLoading)
-                        const CircularProgressIndicator(color: Colors.white70)
-                      else
+                        const SizedBox(height: 24),
                         Text(
-                          _briefingText,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontSize: 16, 
-                            height: 1.6, 
-                            fontStyle: FontStyle.italic,
-                            color: Colors.white70, // Consistent light grey/white
+                          '$capitalizedContext Briefing',
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white, // Force white for visibility on dark overlay
                           ),
                         ),
-                      const SizedBox(height: 32),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        const SizedBox(height: 20),
+                        if (_isLoading)
+                          const CircularProgressIndicator(color: Colors.white70)
+                        else
+                          Text(
+                            _briefingText,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontSize: 16, 
+                              height: 1.6, 
+                              fontStyle: FontStyle.italic,
+                              color: Colors.white70, // Consistent light grey/white
+                            ),
                           ),
-                          child: const Text('As you wish, Butler'),
+                        const SizedBox(height: 32),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            ),
+                            child: const Text('As you wish, Butler'),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
