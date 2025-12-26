@@ -2,7 +2,7 @@ services:
   - type: web
     name: carbon-server
     env: docker
-    root: carbon_footprint_server
+    dockerContext: carbon_footprint_server
     plan: free
     region: us-east # Changing to explicit us-east (Ohio) or standard default
     envVars:
