@@ -119,14 +119,14 @@ This project is built for the **Flutter Butler Hackathon**.
 
 ```mermaid
 graph TD
-    subgraph Frontend [Flutter Client (Mobile & Web)]
+    subgraph Frontend ["Flutter Client (Mobile & Web)"]
         Dashboard[Dashboard UI]
         ButlerChat[Butler Chat]
         Vision[Vision Camera]
         Service[Client Service]
     end
 
-    subgraph Backend [Serverpod Server (Dart)]
+    subgraph Backend ["Serverpod Server (Dart)"]
         ButlerE[Butler Endpoint]
         ActionE[Action Endpoint]
         StatsE[Stats Endpoint]
@@ -134,14 +134,14 @@ graph TD
     end
 
     subgraph Database [PostgreSQL]
-        UserTable[(User Profiles)]
-        ActionTable[(Eco Actions)]
-        LogTable[(Activity Logs)]
+        UserTable[("User Profiles")]
+        ActionTable[("Eco Actions")]
+        LogTable[("Activity Logs")]
     end
 
-    subgraph External [Google Gemini AI]
-        VisionModel[Gemini 1.5 Flash (Vision)]
-        ChatModel[Gemini 1.5 Flash (Text)]
+    subgraph External ["Google Gemini AI"]
+        VisionModel["Gemini 1.5 Flash (Vision)"]
+        ChatModel["Gemini 1.5 Flash (Text)"]
     end
 
     %% Flows
