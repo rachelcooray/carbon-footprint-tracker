@@ -143,15 +143,15 @@ class _ButlerScreenState extends State<ButlerScreen> {
 
       final file = result.files.first;
       
-      // Check if we have a path (mobile) or bytes (web)
+      // Check if we have bytes first (Web) or fallback to path (Mobile)
       List<int> fileBytes;
-      if (file.path != null) {
-        // Mobile: Read from file path
+      if (file.bytes != null) {
+        // Web or when bytes are loaded
+        fileBytes = file.bytes!;
+      } else if (file.path != null) {
+         // Mobile: Read from file path
         final ioFile = File(file.path!);
         fileBytes = await ioFile.readAsBytes();
-      } else if (file.bytes != null) {
-        // Web: Use bytes directly
-        fileBytes = file.bytes!;
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Could not read file data')),
