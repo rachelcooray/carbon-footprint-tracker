@@ -3,6 +3,7 @@ services:
     name: carbon-server
     env: docker
     dockerContext: carbon_footprint_server
+    dockerfilePath: carbon_footprint_server/Dockerfile
     plan: free
     # region removed to let Render choose default
     envVars:
