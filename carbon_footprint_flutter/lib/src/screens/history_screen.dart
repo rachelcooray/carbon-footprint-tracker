@@ -56,7 +56,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   // If Action relation is null (shouldn't be with include), fallback
                   final name = log.action?.name ?? 'Action #${log.actionId}';
                   final unit = log.action?.unit ?? '';
-                  final dateStr = DateFormat.yMMMd().add_jm().format(log.date);
+                  final dateStr = DateFormat.yMMMd().add_jm().format(log.date.toLocal());
 
                   return ListTile(
                     leading: const Icon(Icons.history, color: Colors.green),

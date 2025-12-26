@@ -399,7 +399,7 @@ class _ButlerScreenState extends State<ButlerScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '${message.timestamp.hour}:${message.timestamp.minute.toString().padLeft(2, '0')}',
+                    DateFormat.jm().format(message.timestamp.toLocal()),
                     style: TextStyle(
                       fontSize: 10, 
                       color: isButler ? Colors.grey : theme.colorScheme.onPrimary.withValues(alpha: 0.7),
