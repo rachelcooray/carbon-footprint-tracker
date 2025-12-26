@@ -7,7 +7,7 @@ class WebCenterWrapper extends StatelessWidget {
   const WebCenterWrapper({
     super.key, 
     required this.child, 
-    this.maxWidth = 800,
+    this.maxWidth = 1200,
   });
 
   @override
