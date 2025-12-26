@@ -1,9 +1,9 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:carbon_footprint_server/src/birthday_reminder.dart';
 import 'package:carbon_footprint_server/src/future_calls/midnight_audit.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart' as auth;
-import 'package:mailer/mailer.dart';
-import 'package:mailer/smtp_server.dart';
 
 import 'package:carbon_footprint_server/src/web/routes/root.dart';
 
@@ -14,6 +14,51 @@ import 'src/generated/endpoints.dart';
 // only need to make additions to this file if you add future calls,  are
 // configuring Relic (Serverpod's web-server), or need custom setup work.
 
+Future<bool> _sendEmailViaSendGrid(Session session, String to, String subject, String htmlContent) async {
+  final apiKey = session.serverpod.getPassword('sendgrid_api_key') ?? session.serverpod.getPassword('SENDGRID_API_KEY');
+  final fromEmail = session.serverpod.getPassword('sendgrid_sender_email') ?? 'rachelcooraytest@gmail.com'; // Fallback sender
+
+  if (apiKey == null) {
+    print('ERROR: SENDGRID_API_KEY not found. Cannot send email.');
+    return false;
+  }
+
+  final url = Uri.parse('https://api.sendgrid.com/v3/mail/send');
+  
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $apiKey',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'personalizations': [
+          {
+            'to': [{'email': to}]
+          }
+        ],
+        'from': {'email': fromEmail, 'name': 'Carbon Butler'},
+        'subject': subject,
+        'content': [
+          {'type': 'text/html', 'value': htmlContent}
+        ]
+      }),
+    );
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      print('SendGrid: Email sent successfully to $to');
+      return true;
+    } else {
+      print('SendGrid: Failed to send email. Status: ${response.statusCode}, Body: ${response.body}');
+      return false;
+    }
+  } catch (e) {
+    print('SendGrid: Exception while sending email: $e');
+    return false;
+  }
+}
+
 void run(List<String> args) async {
   // Initialize Serverpod and connect it with your generated code.
   final pod = Serverpod(
@@ -23,20 +68,9 @@ void run(List<String> args) async {
     authenticationHandler: auth.authenticationHandler,
   );
 
-  // Configure Authentication
-  // Configure Authentication with Gmail SMTP
-  const gmailEmail = 'rachelcooraytest@gmail.com';
-  const gmailPassword = 'vabm vqud ohek mubi'; // App Password
-
-  final smtpServer = gmail(gmailEmail, gmailPassword);
-
   auth.AuthConfig.set(auth.AuthConfig(
     sendValidationEmail: (session, email, validationCode) async {
-      final message = Message()
-        ..from = Address(gmailEmail, 'Carbon Butler')
-        ..recipients.add(email)
-        ..subject = 'Verify your Carbon Tracker Account'
-        ..html = '''
+      final html = '''
           <h3>Welcome to Carbon Tracker! 🌿</h3>
           <p>Your verification code is:</p>
           <h1>$validationCode</h1>
@@ -45,30 +79,20 @@ void run(List<String> args) async {
           <p><i>- The Carbon Tracker Team</i></p>
         ''';
 
-      // HACKATHON FIX: Print immediately and SKIP sending to avoid Render timeout
+      // Still print for the logs as a double safety
       print('-------------------------------------------');
+      print('SENDER: SendGrid API');
       print('VALIDATION CODE: $validationCode');
       print('-------------------------------------------');
 
-      // try {
-      //   final sendReport = await send(message, smtpServer);
-      //   print('Message sent: ${sendReport.toString()}');
-      //   return true;
-      // } catch (e) {
-      //   print('Message not sent. \n${e.toString()}');
-      //   return true; 
-      // }
-      return true; 
+      final sent = await _sendEmailViaSendGrid(session, email, 'Verify your Carbon Tracker Account', html);
+      return true; // Always return true for hackathon to allow flow to continue even if email fails
     },
     sendPasswordResetEmail: (session, userInfo, validationCode) async {
       final email = userInfo.email;
       if (email == null) return false;
 
-      final message = Message()
-        ..from = Address(gmailEmail, 'Carbon Butler')
-        ..recipients.add(email)
-        ..subject = 'Reset your Password'
-        ..html = '''
+      final html = '''
           <h3>Password Reset Request 🔐</h3>
           <p>Your password reset code is:</p>
           <h1>$validationCode</h1>
@@ -77,19 +101,12 @@ void run(List<String> args) async {
           <p><i>- The Carbon Tracker Team</i></p>
         ''';
 
-      // HACKATHON FIX: Print immediately and SKIP sending to avoid Render timeout
       print('-------------------------------------------');
+      print('SENDER: SendGrid API');
       print('RESET CODE: $validationCode');
       print('-------------------------------------------');
 
-      // try {
-      //   final sendReport = await send(message, smtpServer);
-      //   print('Reset message sent: ${sendReport.toString()}');
-      //   return true;
-      // } catch (e) {
-      //   print('Reset message not sent. \n${e.toString()}');
-      //   return true;
-      // }
+      final sent = await _sendEmailViaSendGrid(session, email, 'Reset your Password', html);
       return true;
     },
   ));

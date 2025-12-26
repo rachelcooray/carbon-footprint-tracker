@@ -11,6 +11,10 @@ services:
         value: "8080"
       - key: SERVERPOD_PASSWORD_GEMINI_API_KEY
         sync: false
+      - key: SERVERPOD_PASSWORD_SENDGRID_API_KEY
+        sync: false
+      - key: SERVERPOD_PASSWORD_SENDGRID_SENDER_EMAIL
+        sync: false
       - key: SERVERPOD_DATABASE_HOST
         fromDatabase:
           name: carbon-db
