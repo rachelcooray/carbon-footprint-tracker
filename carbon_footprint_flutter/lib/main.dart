@@ -69,7 +69,7 @@ class _MyAppState extends State<MyApp> {
       valueListenable: themeNotifier,
       builder: (context, themeMode, _) {
         return MaterialApp(
-          title: 'Carbon Tracker',
+          title: 'Carbon Footprint',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             useMaterial3: true,
@@ -146,13 +146,22 @@ class _MyAppState extends State<MyApp> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.eco, size: 80, color: Colors.green),
+                Icon(Icons.eco_rounded, size: 80, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(height: 16),
-                Text(
-                  'Carbon Tracker',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green[800],
+                RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style: GoogleFonts.outfit(
+                      fontSize: 32, // Larger for landing page
+                      color: Theme.of(context).colorScheme.primary, // Consistent green
+                    ),
+                    children: [
+                      const TextSpan(text: 'Carbon '),
+                      TextSpan(
+                        text: 'Footprint', 
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 32),

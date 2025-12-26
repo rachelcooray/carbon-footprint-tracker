@@ -111,6 +111,7 @@ This project is built for the **Flutter Butler Hackathon**.
 - [x] **The Butler Theme**: Managed via `Eco Butler` AI implementation in `butler_endpoint.dart`.
 - [x] **Functionality**: Fully implemented dashboard, forest evolution, and AI briefings.
 - [x] **Repository URL**: [https://github.com/rachelcooray/carbon-footprint-tracker](https://github.com/rachelcooray/carbon-footprint-tracker)
+- [x] **Live Demo**: [https://rachelcooray.github.io/carbon-footprint-tracker/](https://rachelcooray.github.io/carbon-footprint-tracker/)
 - [ ] **Demo Video**: [Insert your Video Link here]
 
 ---
