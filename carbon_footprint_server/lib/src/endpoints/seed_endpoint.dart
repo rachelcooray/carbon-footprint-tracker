@@ -56,16 +56,26 @@ class SeedEndpoint extends Endpoint {
       }
 
       // 4. Ensure current user has a profile
-      if (userInfo != null) {
-        final profile = await UserProfile.db.findFirstRow(session, where: (t) => t.userId.equals(userInfo.userId));
-        if (profile == null) {
-          await UserProfile.db.insertRow(session, UserProfile(
-            userId: userInfo.userId,
-            ecoScore: 0,
-            joinedDate: DateTime.now(),
-          ));
-        }
+    if (userInfo != null) {
+      final profile = await UserProfile.db.findFirstRow(session, where: (t) => t.userId.equals(userInfo.userId));
+      
+      // Get the actual username from Serverpod Auth's Users table
+      final user = await Users.findUserByUserId(session, userInfo.userId);
+      final currentUserName = user?.userName ?? "Eco Pioneer";
+
+      if (profile == null) {
+        await UserProfile.db.insertRow(session, UserProfile(
+          userId: userInfo.userId,
+          userName: currentUserName,
+          ecoScore: 0,
+          joinedDate: DateTime.now(),
+        ));
+      } else if (profile.userName == null || profile.userName == "Anonymous") {
+        // Update existing profile if name is missing
+        profile.userName = currentUserName;
+        await UserProfile.db.updateRow(session, profile);
       }
+    }
 
       // 5. Seed Butler Suggestion (If no active suggestion exists)
       if (userInfo != null) {
@@ -93,29 +103,6 @@ class SeedEndpoint extends Endpoint {
             isResolved: false,
           ));
         }
-      }
-
-      // 6. Seed Community Groups
-      final existingGroups = await CommunityGroup.db.find(session);
-      if (existingGroups.isEmpty) {
-        await CommunityGroup.db.insertRow(session, CommunityGroup(
-          name: 'Urban Cyclists',
-          description: 'A group for city dwellers who prefer two wheels over four.',
-          memberCount: 42,
-          totalImpact: 1250.5,
-        ));
-        await CommunityGroup.db.insertRow(session, CommunityGroup(
-          name: 'Zero Waste Warriors',
-          description: 'Committed to reducing landfill waste, one jar at a time.',
-          memberCount: 89,
-          totalImpact: 540.2,
-        ));
-        await CommunityGroup.db.insertRow(session, CommunityGroup(
-          name: 'Green Chefs',
-          description: 'Exploring the delicious world of plant-based cuisine.',
-          memberCount: 156,
-          totalImpact: 2100.8,
-        ));
       }
 
       // Add more diversity to challenges

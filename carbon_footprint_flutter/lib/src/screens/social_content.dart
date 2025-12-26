@@ -50,12 +50,10 @@ class _SocialContentState extends State<SocialContent> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 2,
       child: Column(
         children: [
           TabBar(
-            // labelColor: Theme.of(context).primaryColor,
-            // unselectedLabelColor: Colors.grey,
             labelColor: Theme.of(context).brightness == Brightness.dark
                 ? Colors.white
                 : Theme.of(context).primaryColor,
@@ -65,7 +63,6 @@ class _SocialContentState extends State<SocialContent> {
             tabs: const [
               Tab(text: 'Feed', icon: Icon(Icons.forum_outlined)),
               Tab(text: 'Leaderboard', icon: Icon(Icons.leaderboard_outlined)),
-              Tab(text: 'Communities', icon: Icon(Icons.groups_outlined)),
             ],
           ),
           _buildGlobalImpactBanner(),
@@ -76,7 +73,6 @@ class _SocialContentState extends State<SocialContent> {
                   children: [
                     _buildFeedView(),
                     _buildLeaderboardView(),
-                    _buildCommunitiesView(),
                   ],
                 ),
           ),
@@ -165,7 +161,7 @@ class _SocialContentState extends State<SocialContent> {
             backgroundColor: isMe ? Colors.green : Theme.of(context).cardColor,
             child: Text('${index + 1}', style: TextStyle(color: isMe ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color)),
           ),
-          title: Text(isMe ? 'You (${user.userName ?? "Anonymous"})' : (user.userName ?? 'User #${user.userId}')),
+          title: Text(isMe ? 'You (${user.userName ?? "Eco Pioneer"})' : (user.userName ?? 'Eco Explorer #${user.userId}')),
           subtitle: Text('Level ${user.level} • Joined ${user.joinedDate.toString().split(" ")[0]}'),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
@@ -193,101 +189,6 @@ class _SocialContentState extends State<SocialContent> {
         );
       },
     );
-  }
-
-  Widget _buildCommunitiesView() {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: ElevatedButton.icon(
-            onPressed: () => _showCreateGroupDialog(),
-            icon: const Icon(Icons.add),
-            label: const Text('Create Community'),
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 50),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          ),
-        ),
-        Expanded(
-          child: _groups.isEmpty
-              ? const Center(child: Text('No communities yet. Be a pioneer!'))
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: _groups.length,
-                  itemBuilder: (context, index) {
-                    final group = _groups[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: GlassCard(
-                        opacity: 0.05,
-                        child: ListTile(
-                          title: Text(group.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Text(group.description),
-                          trailing: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text('${group.memberCount}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                              const Text('members', style: TextStyle(fontSize: 10)),
-                            ],
-                          ),
-                          onTap: () => _joinGroup(group.id!),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-        ),
-      ],
-    );
-  }
-
-  void _showCreateGroupDialog() {
-    final nameController = TextEditingController();
-    final descController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('New Community'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Name')),
-            TextField(controller: descController, decoration: const InputDecoration(labelText: 'Description')),
-          ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () async {
-              if (nameController.text.isNotEmpty) {
-                await client.community.createGroup(nameController.text, descController.text);
-                if (mounted) {
-                  Navigator.pop(context);
-                  _fetchData();
-                }
-              }
-            },
-            child: const Text('Create'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _joinGroup(int groupId) async {
-    try {
-      await client.community.joinGroup(groupId);
-      if (mounted) {
-        final userName = sessionManager.signedInUser?.userName ?? "Friend";
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Welcome to the community, $userName!')));
-        _fetchData();
-      }
-    } catch (e) {
-       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-    }
   }
 
   void _cheerUser(int userId) async {
