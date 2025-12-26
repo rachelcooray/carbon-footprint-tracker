@@ -205,16 +205,18 @@ class _DashboardContentState extends State<DashboardContent> {
             const SizedBox(height: 8),
             Row(
               children: [
-                Expanded(
-                  child: OutlinedButton.icon(
+                // Compact Refresh Button (Icon Only) to save space on mobile
+                OutlinedButton(
                     onPressed: () {
                       refreshNotifier.value++; // Trigger Global Refresh
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Refreshing entire app...')));
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Refreshing...')));
                     },
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('Refresh'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.all(12),
+                      minimumSize: const Size(48, 48), // Square-ish
+                    ),
+                    child: const Icon(Icons.refresh),
                   ),
-                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: OutlinedButton(
