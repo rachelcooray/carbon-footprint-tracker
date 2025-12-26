@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:carbon_footprint_server/src/birthday_reminder.dart';
 import 'package:carbon_footprint_server/src/future_calls/midnight_audit.dart';
@@ -15,11 +16,20 @@ import 'src/generated/endpoints.dart';
 // configuring Relic (Serverpod's web-server), or need custom setup work.
 
 Future<bool> _sendEmailViaSendGrid(Session session, String to, String subject, String htmlContent) async {
-  final apiKey = session.serverpod.getPassword('sendgrid_api_key') ?? session.serverpod.getPassword('SENDGRID_API_KEY');
-  final fromEmail = session.serverpod.getPassword('sendgrid_sender_email') ?? 'rachelcooraytest@gmail.com'; // Fallback sender
+  // Robust API key loading (Checks multiple casings and direct System Environment)
+  final apiKey = session.serverpod.getPassword('sendgrid_api_key') 
+              ?? session.serverpod.getPassword('SENDGRID_API_KEY')
+              ?? Platform.environment['SERVERPOD_PASSWORD_SENDGRID_API_KEY']
+              ?? Platform.environment['SENDGRID_API_KEY'];
+
+  final fromEmail = session.serverpod.getPassword('sendgrid_sender_email') 
+                 ?? session.serverpod.getPassword('SENDGRID_SENDER_EMAIL')
+                 ?? Platform.environment['SERVERPOD_PASSWORD_SENDGRID_SENDER_EMAIL']
+                 ?? Platform.environment['SENDGRID_SENDER_EMAIL']
+                 ?? 'rachelcooraytest@gmail.com'; 
 
   if (apiKey == null) {
-    print('ERROR: SENDGRID_API_KEY not found. Cannot send email.');
+    print('ERROR: SENDGRID_API_KEY not found in passwords.yaml or ENV. Cannot send email.');
     return false;
   }
 
@@ -85,8 +95,8 @@ void run(List<String> args) async {
       print('VALIDATION CODE: $validationCode');
       print('-------------------------------------------');
 
-      final sent = await _sendEmailViaSendGrid(session, email, 'Verify your Carbon Tracker Account', html);
-      return true; // Always return true for hackathon to allow flow to continue even if email fails
+      await _sendEmailViaSendGrid(session, email, 'Verify your Carbon Tracker Account', html);
+      return true; // Always return true for hackathon to allow flow to continue
     },
     sendPasswordResetEmail: (session, userInfo, validationCode) async {
       final email = userInfo.email;
@@ -106,7 +116,7 @@ void run(List<String> args) async {
       print('RESET CODE: $validationCode');
       print('-------------------------------------------');
 
-      final sent = await _sendEmailViaSendGrid(session, email, 'Reset your Password', html);
+      await _sendEmailViaSendGrid(session, email, 'Reset your Password', html);
       return true;
     },
   ));
