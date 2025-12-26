@@ -4,10 +4,10 @@ services:
     env: docker
     root: carbon_footprint_server
     plan: free
-    region: ohio
+    region: us-east # Changing to explicit us-east (Ohio) or standard default
     envVars:
       - key: PORT
-        value: 8080
+        value: "8080"
       - key: SERVERPOD_PASSWORDS_GEMINI_API_KEY
         sync: false
       - key: SERVERPOD_DATABASE_HOST
@@ -31,11 +31,10 @@ services:
           name: carbon-db
           property: password
       - key: SERVERPOD_DATABASE_REQUIRE_SSL
-        value: true
+        value: "true"
 
 databases:
   - name: carbon-db
     databaseName: carbon_db
     user: carbon_user
     plan: free # Note: Free tier DBs expire after 90 days, but good for starting.
-    region: ohio
