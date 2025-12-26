@@ -37,11 +37,11 @@ class MidnightAudit extends FutureCall {
 
       String verdict;
       if (logs.isEmpty) {
-        verdict = 'I noticed a lack of eco-activity yesterday, $userName. Perhaps we could start fresh today with a brisk walk?';
+        verdict = 'I noticed a lack of activity yesterday. Shall I prepare a walking route for today?';
       } else if (totalSaved < 2.0) {
-        verdict = '$userName, a modest effort yesterday. I believe we can push our boundaries today, especially given the grid is currently ${GridService.getGridStatus().toLowerCase()}!';
+        verdict = 'A modest start. The grid is ${GridService.getGridStatus().toLowerCase()}—shall we run high-energy tasks now?';
       } else {
-        verdict = 'Magnificent performance yesterday, $userName! You saved ${totalSaved.toStringAsFixed(1)}kg of CO2. Let us maintain this noble momentum.';
+        verdict = 'Magnificent effort ($totalSaved kg saved)! Shall we increase your daily goal by 10%?';
       }
 
       // 4. Create Butler Event

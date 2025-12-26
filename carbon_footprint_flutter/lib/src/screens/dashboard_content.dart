@@ -182,12 +182,15 @@ class _DashboardContentState extends State<DashboardContent> {
             const SizedBox(height: 24),
 
             // 2. Impact & Budget Row (Squares) - MOVED UP
-            Row(
-              children: [
-                Expanded(child: _buildImpactCard(totalCo2Saved: _stats?.totalCo2Saved ?? 0)),
-                const SizedBox(width: 16),
-                Expanded(child: _buildBudgetGauge()),
-              ],
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch, // Ensure both fill height
+                children: [
+                  Expanded(child: _buildImpactCard(totalCo2Saved: _stats?.totalCo2Saved ?? 0)),
+                  const SizedBox(width: 16),
+                  Expanded(child: _buildBudgetGauge()),
+                ],
+              ),
             ),
             const SizedBox(height: 24),
 

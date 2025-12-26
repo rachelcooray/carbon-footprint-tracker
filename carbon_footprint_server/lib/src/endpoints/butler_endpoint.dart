@@ -253,18 +253,17 @@ class ButlerEndpoint extends Endpoint {
     // Use client provided time context
     final now = DateTime.now();
 
-    final prompt = 'User Data: Level ${profile?.level ?? 1}, Eco Score ${profile?.ecoScore ?? 0}, Streak ${profile?.streakDays ?? 0}. '
-        'Energy Grid Status: $gridAdvice. '
-        'Current time: ${now.hour}:${now.minute}. '
-        'Time Context: $timeContext. '
-        'Generate a formal, exceptionally polite $timeContext briefing (max 3 sentences) for $userName. '
-        'CRITICAL RULE: You MUST use a greeting appropriate for the $timeContext. '
-        'If the context is "afternoon", you MUST say "Good afternoon" or "A pleasant afternoon". '
-        'If "evening", say "Good evening". If "night", say "Good evening". '
-        'DO NOT use the word "morning" unless the Time Context is explicitly "morning". '
-        'STYLE RULES: Randomly select a tone: Philosophical (nature-focused), Technical (grid/metrics focused), Celebratory (streak/level focused), or Encouraging (warm/supportive). '
-        'STRUCTURE RULES: Each briefing must follow a different pattern: [Greeting + Impact Stat + Personal Tip], [Insight + Encouragement + Action Quest], or [Reflection + Grid Warning + Kind Suggestion]. '
-        'Always maintain the refined "Eco Butler" persona, never use "sir" or "madam", and ensure this briefing is strikingly different from any other.';
+    final prompt = '''
+User Data: Level ${profile?.level ?? 1}, Eco Score ${profile?.ecoScore ?? 0}, Streak ${profile?.streakDays ?? 0}.
+Energy Grid Status: $gridAdvice.
+Current time: ${now.hour}:${now.minute}. Time Context: $timeContext.
+
+Generate a formal, polite, and ACTIONABLE suggestion (max 20 words) for $userName.
+CRITICAL RULE: The suggestion must be a concrete proposal the user can authorize.
+Examples: "Shall I actívate Eco Mode?", "Shall we log your commute?", "The grid is dirty; shall we delay tasks?"
+Do NOT give generic advice. Propose an ACTION.
+Greeting: Use appropriate $timeContext greeting.
+''';
     
     if (model == null) return "I apologize, $userName, but my generative facilities are offline.";
     
@@ -305,18 +304,17 @@ class ButlerEndpoint extends Endpoint {
       timeContext = "night";
     }
 
-    final prompt = 'User Data: Level ${profile?.level ?? 1}, Eco Score ${profile?.ecoScore ?? 0}, Streak ${profile?.streakDays ?? 0}. '
-        'Energy Grid Status: $gridAdvice. '
-        'Current time: ${now.hour}:${now.minute}. '
-        'Time Context: $timeContext. '
-        'Generate a formal, exceptionally polite $timeContext briefing (max 3 sentences) for $userName. '
-        'CRITICAL RULE: You MUST use a greeting appropriate for the $timeContext. '
-        'If the context is "afternoon", you MUST say "Good afternoon" or "A pleasant afternoon". '
-        'If "evening", say "Good evening". If "night", say "Good night". '
-        'DO NOT use the word "morning" unless the Time Context is explicitly "morning". '
-        'STYLE RULES: Randomly select a tone: Philosophical (nature-focused), Technical (grid/metrics focused), Celebratory (streak/level focused), or Encouraging (warm/supportive). '
-        'STRUCTURE RULES: Each briefing must follow a different pattern: [Greeting + Impact Stat + Personal Tip], [Insight + Encouragement + Action Quest], or [Reflection + Grid Warning + Kind Suggestion]. '
-        'Always maintain the refined "Eco Butler" persona, never use "sir" or "madam", and ensure this briefing is strikingly different from any other.';
+    final prompt = '''
+User Data: Level ${profile?.level ?? 1}, Eco Score ${profile?.ecoScore ?? 0}, Streak ${profile?.streakDays ?? 0}.
+Energy Grid Status: $gridAdvice.
+Current time: ${now.hour}:${now.minute}. Time Context: $timeContext.
+
+Generate a formal, polite, and ACTIONABLE suggestion (max 20 words) for $userName.
+CRITICAL RULE: The suggestion must be a concrete proposal the user can authorize.
+Examples: "Shall I actívate Eco Mode?", "Shall we log your commute?", "The grid is dirty; shall we delay tasks?"
+Do NOT give generic advice. Propose an ACTION.
+Greeting: Use appropriate $timeContext greeting.
+''';
 
     try {
       final responseStream = model.generateContentStream([Content.text(prompt)]);

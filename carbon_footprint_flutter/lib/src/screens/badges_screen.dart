@@ -110,11 +110,11 @@ class _BadgesScreenState extends State<BadgesScreen> {
             ? const Center(child: CircularProgressIndicator())
             : GridView.builder(
                 padding: const EdgeInsets.all(20),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 200, // Cards will be at most 200px wide
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
-                  childAspectRatio: 0.75,
+                  childAspectRatio: 0.8, // Slightly taller for better reading
                 ),
                 itemCount: _allBadges.length,
                 itemBuilder: (context, index) {
