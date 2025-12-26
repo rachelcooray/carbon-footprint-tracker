@@ -4,7 +4,7 @@ services:
     env: docker
     dockerContext: carbon_footprint_server
     plan: free
-    region: us-east # Changing to explicit us-east (Ohio) or standard default
+    # region removed to let Render choose default
     envVars:
       - key: PORT
         value: "8080"
