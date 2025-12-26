@@ -117,7 +117,7 @@ This project is built for the **Flutter Butler Hackathon**.
 
 ## 🏗️ System Architecture
 
-![System Architecture Diagram](carbon_footprint/assets/system_architecture_diagram.png)
+![System Architecture Diagram](assets/system_architecture_diagram.png)
 
 ## 🚀 Technical Stack
 
