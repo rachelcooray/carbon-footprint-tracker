@@ -129,4 +129,14 @@ This project is built for the **Flutter Butler Hackathon**.
 
 ---
 
+## 📚 Project Documentation
+For judges and developers, we have detailed documentation available:
+
+*   **[Devpost Submission & Pitch](documentation/devpost_submission.md)**: Full project story and inspiration.
+*   **[Scientific Methodology](documentation/scientific_methodology.md)**: The rigorous math behind the Eco Score.
+*   **[Butler AI Integration](documentation/butler_integration_docs.md)**: Technical deep-dive into Gemini + Serverpod.
+*   **[Serverpod Feedback](documentation/serverpod_feedback.md)**: Our actionable feedback for the Serverpod team.
+
+---
+
 *Crafted for a greener tomorrow.*
