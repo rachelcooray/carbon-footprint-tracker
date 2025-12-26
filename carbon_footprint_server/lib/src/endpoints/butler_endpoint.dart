@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart';
@@ -10,10 +11,14 @@ class ButlerEndpoint extends Endpoint {
 
 
   Future<GenerativeModel?> _getModel(Session session, String userName) async {
-    // Get API key from passwords.yaml
-    final apiKey = session.serverpod.getPassword('gemini_api_key');
+    // Get API key with case-insensitive and ENV fallback
+    var apiKey = session.serverpod.getPassword('gemini_api_key') 
+              ?? session.serverpod.getPassword('GEMINI_API_KEY')
+              ?? Platform.environment['SERVERPOD_PASSWORD_GEMINI_API_KEY']
+              ?? Platform.environment['GEMINI_API_KEY'];
+
     if (apiKey == null) {
-      print('WARNING: gemini_api_key not found in passwords.yaml');
+      print('WARNING: gemini_api_key not found in passwords.yaml or ENV');
       return null;
     }
 
@@ -50,10 +55,14 @@ class ButlerEndpoint extends Endpoint {
   }
 
   Future<GenerativeModel?> _getVisionModel(Session session) async {
-    // Get API key from passwords.yaml
-    final apiKey = session.serverpod.getPassword('gemini_api_key');
+    // Get API key with case-insensitive and ENV fallback
+    var apiKey = session.serverpod.getPassword('gemini_api_key') 
+              ?? session.serverpod.getPassword('GEMINI_API_KEY')
+              ?? Platform.environment['SERVERPOD_PASSWORD_GEMINI_API_KEY']
+              ?? Platform.environment['GEMINI_API_KEY'];
+
     if (apiKey == null) {
-      print('WARNING: gemini_api_key not found in passwords.yaml');
+      print('WARNING: gemini_api_key not found in passwords.yaml or ENV');
       return null;
     }
 
