@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: carbon-server
+    env: docker
+    root: carbon_footprint_server
+    plan: free
+    region: ohio
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: SERVERPOD_PASSWORDS_GEMINI_API_KEY
+        sync: false
+      - key: SERVERPOD_DATABASE_HOST
+        fromDatabase:
+          name: carbon-db
+          property: host
+      - key: SERVERPOD_DATABASE_PORT
+        fromDatabase:
+          name: carbon-db
+          property: port
+      - key: SERVERPOD_DATABASE_NAME
+        fromDatabase:
+          name: carbon-db
+          property: database
+      - key: SERVERPOD_DATABASE_USER
+        fromDatabase:
+          name: carbon-db
+          property: user
+      - key: SERVERPOD_DATABASE_PASSWORD
+        fromDatabase:
+          name: carbon-db
+          property: password
+      - key: SERVERPOD_DATABASE_REQUIRE_SSL
+        value: true
+
+databases:
+  - name: carbon-db
+    databaseName: carbon_db
+    user: carbon_user
+    plan: free # Note: Free tier DBs expire after 90 days, but good for starting.
+    region: ohio

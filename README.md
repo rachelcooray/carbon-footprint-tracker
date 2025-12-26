@@ -67,12 +67,61 @@ Projected savings based on standard efficiency models.
 
 ---
 
+## 🚀 Getting Started
+
+To run the Carbon Footprint Tracker locally or prepare it for deployment, follow these steps:
+
+### 1. Backend (Serverpod)
+The backend requires Docker for Postgres and Redis (optional).
+
+1.  Navigate to the server directory:
+    ```bash
+    cd carbon_footprint_server
+    ```
+2.  Start the database:
+    ```bash
+    docker compose up --build --detach
+    ```
+3.  Run the server:
+    ```bash
+    dart bin/main.dart
+    ```
+
+### 2. Frontend (Flutter)
+1.  Navigate to the flutter directory:
+    ```bash
+    cd carbon_footprint_flutter
+    ```
+2.  Install dependencies:
+    ```bash
+    flutter pub get
+    ```
+3.  Run the app:
+    ```bash
+    flutter run
+    ```
+
+---
+
+## 🏆 Hackathon Readiness
+
+This project is built for the **Flutter Butler Hackathon**.
+
+- [x] **Project Built with Flutter + Serverpod**: Core stack confirmed.
+- [x] **The Butler Theme**: Managed via `Eco Butler` AI implementation in `butler_endpoint.dart`.
+- [x] **Functionality**: Fully implemented dashboard, forest evolution, and AI briefings.
+- [ ] **Repository URL**: [Insert your Repo URL here]
+- [ ] **Demo Video**: [Insert your Video Link here]
+
+---
+
 ## 🚀 Technical Stack
 
 *   **Frontend**: Flutter (Mobile & Web) - *Glassmorphism Design System*
 *   **Backend**: Serverpod (Dart) - *Scalable & Typesafe*
 *   **AI**: Google Gemini (Flash Model) - *Generative Text & Insights*
 *   **Database**: PostgreSQL
+*   **Deployment**: Google Cloud Run (Targeted)
 
 ---
 

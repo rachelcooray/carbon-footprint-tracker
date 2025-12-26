@@ -16,7 +16,7 @@ void main() async {
 
   const serverUrlFromEnv = String.fromEnvironment('SERVER_URL');
   final rawServerUrl =
-      serverUrlFromEnv.isEmpty ? 'http://localhost:8080/' : serverUrlFromEnv;
+      serverUrlFromEnv.isEmpty ? 'http://localhost:8080/' : serverUrlFromEnv; //
   final serverUrl = rawServerUrl.endsWith('/') ? rawServerUrl : '$rawServerUrl/';
 
   client = Client(

@@ -5,3 +5,4 @@ import 'package:carbon_footprint_server/server.dart';
 void main(List<String> args) {
   run(args);
 }
+

@@ -4,24 +4,24 @@
 # Terraform scripts to deploy your server, all you need to change in
 # this file is the examplepod.com domain name.
 
-# Configuration for the main API server.
+# # Configuration for the main API server.
 apiServer:
   port: 8080
-  publicHost: carbon-footprint-server-436431234864.us-central1.run.app
+  publicHost: carbon-server-m7j4a5z7la-uc.a.run.app
   publicPort: 443
   publicScheme: https
 
 # Configuration for the Insights server.
 insightsServer:
   port: 8081
-  publicHost: carbon-footprint-server-436431234864.us-central1.run.app
+  publicHost: carbon-server-m7j4a5z7la-uc.a.run.app
   publicPort: 443
   publicScheme: https
 
 # Configuration for the web server.
 webServer:
   port: 8082
-  publicHost: carbon-footprint-server-436431234864.us-central1.run.app
+  publicHost: carbon-server-m7j4a5z7la-uc.a.run.app
   publicPort: 443
   publicScheme: https
 
@@ -30,12 +30,12 @@ webServer:
 # If you are connecting on a public IP (e.g. on AWS or Google Cloud Run), you
 # connect on the public IP of the database e.g. database.examplepod.com.
 database:
-  host: /cloudsql/carbon-butler-1766563332:us-central1:carbon-footprint-db
+  host: "database-host" # Overridden by SERVERPOD_DATABASE_HOST env var
   port: 5432
-  name: serverpod
-  user: postgres
-  requireSsl: false
-  isUnixSocket: true
+  name: "carbon_db" # Overridden by SERVERPOD_DATABASE_NAME env var
+  user: "postgres"  # Overridden by SERVERPOD_DATABASE_USER env var
+  requireSsl: true 
+  isUnixSocket: false
 
 # This is the setup for Redis. The default for the Google Cloud Engine Terraform
 # configuration is to connect on a private IP address.
@@ -51,10 +51,11 @@ maxRequestSize: 524288 # The maximum size of requests allowed in bytes
 
 sessionLogs:
   consoleEnabled: false
-# persistentEnabled: true
+  persistentEnabled: true
 
 # futureCallExecutionEnabled: true # Defaults to true
 
 #futureCall:
 #  concurrencyLimit: 1 # Defaults to 1, a negative or null value removes the limit
 #  scanInterval: 5000 # Defaults to 5000
+

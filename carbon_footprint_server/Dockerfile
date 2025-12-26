@@ -1,5 +1,5 @@
 # Build stage
-FROM dart:3.3.0 AS build
+FROM --platform=linux/amd64 dart:3.3.0 AS build
 WORKDIR /app
 COPY . .
 
@@ -8,16 +8,18 @@ RUN dart pub get
 RUN dart compile exe bin/main.dart -o bin/server
 
 # Final stage
-FROM alpine:latest
+FROM --platform=linux/amd64 debian:stable-slim
+
+# Install runtime dependencies (glibc, etc)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 # Environment variables
 ENV runmode=production
 ENV serverid=default
 ENV logging=normal
 ENV role=monolith
-
-# Copy runtime dependencies
-COPY --from=build /runtime/ /
 
 # Copy compiled server executable
 COPY --from=build /app/bin/server server
