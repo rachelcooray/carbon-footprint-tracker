@@ -8,6 +8,9 @@ on:
       - 'carbon_footprint_flutter/**'
       - '.github/workflows/gh-pages.yml'
 
+permissions:
+  contents: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
