@@ -115,6 +115,50 @@ This project is built for the **Flutter Butler Hackathon**.
 
 ---
 
+## 🏗️ System Architecture
+
+```mermaid
+graph TD
+    subgraph Frontend [Flutter Client (Mobile & Web)]
+        Dashboard[Dashboard UI]
+        ButlerChat[Butler Chat]
+        Vision[Vision Camera]
+        Service[Client Service]
+    end
+
+    subgraph Backend [Serverpod Server (Dart)]
+        ButlerE[Butler Endpoint]
+        ActionE[Action Endpoint]
+        StatsE[Stats Endpoint]
+        Logic[Business Logic]
+    end
+
+    subgraph Database [PostgreSQL]
+        UserTable[(User Profiles)]
+        ActionTable[(Eco Actions)]
+        LogTable[(Activity Logs)]
+    end
+
+    subgraph External [Google Gemini AI]
+        VisionModel[Gemini 1.5 Flash (Vision)]
+        ChatModel[Gemini 1.5 Flash (Text)]
+    end
+
+    %% Flows
+    Dashboard -->|Polls Stats| StatsE
+    Vision -->|Uploads Image| ButlerE
+    ButlerChat -->|Sends Context| ButlerE
+    Service -->|Logs Action| ActionE
+
+    ButlerE -->|Analyzes Image| VisionModel
+    ButlerE -->|Generates Persona| ChatModel
+    ButlerE -->|Reads History| LogTable
+
+    ActionE -->|Saves Log| LogTable
+    ActionE -->|Updates Score| UserTable
+    StatsE -->|Aggregates| LogTable
+```
+
 ## 🚀 Technical Stack
 
 *   **Frontend**: Flutter (Mobile & Web) - *Glassmorphism Design System*
