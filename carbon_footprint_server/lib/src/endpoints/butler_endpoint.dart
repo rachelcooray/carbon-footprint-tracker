@@ -110,11 +110,25 @@ class ButlerEndpoint extends Endpoint {
     await ButlerMessage.db.insertRow(session, userMsg);
 
     String responseText;
+    // Fetch context for the chat
+    final profile = await UserProfile.db.findFirstRow(session, where: (t) => t.userId.equals(userId));
+    final contextBlock = '''
+[SYSTEM CONTEXT]
+User Stats:
+- Level: ${profile?.level ?? 1} (${profile?.levelLabel ?? 'Fledgling Woods'})
+- Eco Score: ${profile?.ecoScore ?? 0}
+- Streak: ${profile?.streakDays ?? 0} days
+- Monthly Budget: ${profile?.monthlyBudget ?? 0} kg CO2
+[END CONTEXT]
+''';
+
+    final textWithContext = "$contextBlock\n\nUser Query: $text";
+
     if (model == null) {
       responseText = "I'm sorry, $userName, but my intellectual circuits (API Key) seem to be disconnected.";
     } else {
       try {
-        final content = [Content.text(text)];
+        final content = [Content.text(textWithContext)];
         final response = await model.generateContent(content);
         responseText = response.text ?? "I am momentarily speechless, $userName.";
         
@@ -169,7 +183,22 @@ class ButlerEndpoint extends Endpoint {
       return;
     }
 
-    final content = [Content.text(text)];
+    // Fetch context for the chat
+    final profile = await UserProfile.db.findFirstRow(session, where: (t) => t.userId.equals(userId));
+    final contextBlock = '''
+[SYSTEM CONTEXT]
+User Stats:
+- Level: ${profile?.level ?? 1} (${profile?.levelLabel ?? 'Fledgling Woods'})
+- Eco Score: ${profile?.ecoScore ?? 0}
+- Streak: ${profile?.streakDays ?? 0} days
+- Monthly Budget: ${profile?.monthlyBudget ?? 0} kg CO2
+- Today's Date: ${DateTime.now().toIso8601String()}
+[END CONTEXT]
+''';
+
+    final textWithContext = "$contextBlock\n\nUser Query: $text";
+
+    final content = [Content.text(textWithContext)];
     var fullResponse = "";
     
     try {
