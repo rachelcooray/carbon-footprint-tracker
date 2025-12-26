@@ -23,6 +23,7 @@ class _DashboardContentState extends State<DashboardContent> {
   double _evKmValue = 0.0; // 0 to 500
   String _gridStatus = 'LOADING';
   String _gridAdvice = '';
+  bool _hasAttemptedSeed = false;
   
   final List<String> _tips = [
     'Washing clothes at 30°C saves up to 40% energy!',
@@ -43,14 +44,14 @@ class _DashboardContentState extends State<DashboardContent> {
     try {
       final stats = await client.stats.getUserStats(0);
       // Insert seed check after fetching stats
-      if (stats.totalCo2Saved == 0 && stats.ecoScore == 0 && stats.level == 1 && stats.streakDays == 0) {
+      if (!_hasAttemptedSeed && stats.totalCo2Saved == 0 && stats.ecoScore == 0 && stats.level == 1 && stats.streakDays == 0) {
+        _hasAttemptedSeed = true;
         // If stats are all default/zero, it might mean no data, so seed it.
-        // This is a simple heuristic; a more robust check might be needed.
         await client.seed.seedData();
         // Re-fetch data after seeding
         if (mounted) {
           _fetchData();
-          return; // Exit to prevent further processing with old data
+          return; 
         }
       }
       final actions = await client.action.getActions(0);
