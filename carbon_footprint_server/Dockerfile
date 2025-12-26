@@ -37,4 +37,8 @@ EXPOSE 8080
 EXPOSE 8081
 EXPOSE 8082
 
-ENTRYPOINT ["./server"]
+# Copy startup script
+COPY --from=build /app/run.sh .
+RUN chmod +x run.sh
+
+CMD ["./run.sh"]
