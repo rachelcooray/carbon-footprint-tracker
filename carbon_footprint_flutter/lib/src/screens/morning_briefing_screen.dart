@@ -18,22 +18,22 @@ class _MorningBriefingScreenState extends State<MorningBriefingScreen> with Sing
   String _getTimeContext() {
     final now = DateTime.now();
     if (now.hour >= 5 && now.hour < 12) return "morning";
-    if (now.hour >= 12 && now.hour < 17) return "afternoon";
-    if (now.hour >= 17 && now.hour < 21) return "evening";
+    if (now.hour >= 12 && now.hour < 16) return "afternoon";
+    if (now.hour >= 16 && now.hour < 21) return "evening";
     return "night";
   }
 
   IconData _getTimeIcon() {
     final now = DateTime.now();
-    if (now.hour >= 5 && now.hour < 17) return Icons.wb_sunny_outlined;
-    if (now.hour >= 17 && now.hour < 21) return Icons.wb_twilight_outlined;
+    if (now.hour >= 5 && now.hour < 16) return Icons.wb_sunny_outlined;
+    if (now.hour >= 16 && now.hour < 21) return Icons.wb_twilight_outlined;
     return Icons.nightlight_round_outlined;
   }
 
   Color _getTimeIconColor() {
     final now = DateTime.now();
-    if (now.hour >= 5 && now.hour < 17) return Colors.orange;
-    if (now.hour >= 17 && now.hour < 21) return Colors.deepOrangeAccent;
+    if (now.hour >= 5 && now.hour < 16) return Colors.orange;
+    if (now.hour >= 16 && now.hour < 21) return Colors.deepOrangeAccent;
     return Colors.blueAccent;
   }
 

@@ -297,9 +297,9 @@ class ButlerEndpoint extends Endpoint {
     // Determine time of day
     final now = DateTime.now();
     String timeContext = "morning";
-    if (now.hour >= 12 && now.hour < 17) {
+    if (now.hour >= 12 && now.hour < 16) {
       timeContext = "afternoon";
-    } else if (now.hour >= 17 && now.hour < 21) {
+    } else if (now.hour >= 16 && now.hour < 21) {
       timeContext = "evening";
     } else if (now.hour >= 21 || now.hour < 5) {
       timeContext = "night";
