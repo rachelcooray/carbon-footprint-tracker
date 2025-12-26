@@ -48892,16 +48892,16 @@ a8(){return new A.a_L(null,null)}}
 A.a_L.prototype={
 zX(){var s=new A.ci(Date.now(),0,!1)
 if(A.dS(s)>=5&&A.dS(s)<12)return"morning"
-if(A.dS(s)>=12&&A.dS(s)<17)return"afternoon"
-if(A.dS(s)>=17&&A.dS(s)<21)return"evening"
+if(A.dS(s)>=12&&A.dS(s)<16)return"afternoon"
+if(A.dS(s)>=16&&A.dS(s)<21)return"evening"
 return"night"},
 afR(){var s=new A.ci(Date.now(),0,!1)
-if(A.dS(s)>=5&&A.dS(s)<17)return B.pG
-if(A.dS(s)>=17&&A.dS(s)<21)return B.Ld
+if(A.dS(s)>=5&&A.dS(s)<16)return B.pG
+if(A.dS(s)>=16&&A.dS(s)<21)return B.Ld
 return B.L9},
 afS(){var s=new A.ci(Date.now(),0,!1)
-if(A.dS(s)>=5&&A.dS(s)<17)return B.c2
-if(A.dS(s)>=17&&A.dS(s)<21)return B.RF
+if(A.dS(s)>=5&&A.dS(s)<16)return B.c2
+if(A.dS(s)>=16&&A.dS(s)<21)return B.RF
 return B.RG},
 al(){var s,r,q,p=this,o=null
 p.aD()
