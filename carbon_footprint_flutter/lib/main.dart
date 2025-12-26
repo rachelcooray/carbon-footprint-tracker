@@ -129,43 +129,45 @@ class _MyAppState extends State<MyApp> {
             ),
           ),
           themeMode: themeMode,
-          home: _homePage(),
+          home: sessionManager.isSignedIn ? const MainScreen() : const SignInPage(),
         );
       }
     );
   }
+}
 
-  Widget _homePage() {
-    if (sessionManager.isSignedIn) {
-      return const MainScreen();
-    } else {
-      return Scaffold(
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.eco_rounded, size: 80, color: Theme.of(context).colorScheme.primary),
-                const SizedBox(height: 16),
-                RichText(
-                  textAlign: TextAlign.center,
-                  text: TextSpan(
-                    style: GoogleFonts.outfit(
-                      fontSize: 32, // Larger for landing page
-                      color: Theme.of(context).colorScheme.primary, // Consistent green
-                    ),
-                    children: [
-                      const TextSpan(text: 'Carbon '),
-                      TextSpan(
-                        text: 'Footprint', 
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
-                      ),
-                    ],
+class SignInPage extends StatelessWidget {
+  const SignInPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.eco_rounded, size: 80, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(height: 16),
+              RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  style: GoogleFonts.outfit(
+                    fontSize: 32, // Larger for landing page
+                    color: Theme.of(context).colorScheme.primary, // Consistent green
                   ),
+                  children: [
+                    const TextSpan(text: 'Carbon '),
+                    TextSpan(
+                      text: 'Footprint', 
+                      style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 32),
-                Theme(
+              ),
+              const SizedBox(height: 32),
+              Theme(
                   data: Theme.of(context).copyWith(
                     elevatedButtonTheme: ElevatedButtonThemeData(
                       style: ElevatedButton.styleFrom(
@@ -181,11 +183,10 @@ class _MyAppState extends State<MyApp> {
                     caller: client.modules.auth,
                   ),
                 ),
-              ],
-            ),
+            ],
           ),
         ),
-      );
-    }
+      ),
+    );
   }
 }
