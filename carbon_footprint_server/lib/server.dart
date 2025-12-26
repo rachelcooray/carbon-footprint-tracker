@@ -45,15 +45,17 @@ void run(List<String> args) async {
           <p><i>- The Carbon Tracker Team</i></p>
         ''';
 
+      // HACKATHON FIX: Print immediately before attempting to send
+      print('-------------------------------------------');
+      print('VALIDATION CODE: $validationCode');
+      print('-------------------------------------------');
+
       try {
         final sendReport = await send(message, smtpServer);
         print('Message sent: ${sendReport.toString()}');
         return true;
       } catch (e) {
         print('Message not sent. \n${e.toString()}');
-        print('-------------------------------------------');
-        print('FALLBACK VALIDATION CODE: $validationCode');
-        print('-------------------------------------------');
         return true; // Allow flow to continue for hackathon/demo
       }
     },
@@ -74,15 +76,17 @@ void run(List<String> args) async {
           <p><i>- The Carbon Tracker Team</i></p>
         ''';
 
+      // HACKATHON FIX: Print immediately before attempting to send
+      print('-------------------------------------------');
+      print('RESET CODE: $validationCode');
+      print('-------------------------------------------');
+
       try {
         final sendReport = await send(message, smtpServer);
         print('Reset message sent: ${sendReport.toString()}');
         return true;
       } catch (e) {
         print('Reset message not sent. \n${e.toString()}');
-        print('-------------------------------------------');
-        print('FALLBACK RESET CODE: $validationCode');
-        print('-------------------------------------------');
         return true; // Allow flow to continue
       }
     },
