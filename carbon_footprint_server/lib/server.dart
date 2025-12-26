@@ -45,19 +45,20 @@ void run(List<String> args) async {
           <p><i>- The Carbon Tracker Team</i></p>
         ''';
 
-      // HACKATHON FIX: Print immediately before attempting to send
+      // HACKATHON FIX: Print immediately and SKIP sending to avoid Render timeout
       print('-------------------------------------------');
       print('VALIDATION CODE: $validationCode');
       print('-------------------------------------------');
 
-      try {
-        final sendReport = await send(message, smtpServer);
-        print('Message sent: ${sendReport.toString()}');
-        return true;
-      } catch (e) {
-        print('Message not sent. \n${e.toString()}');
-        return true; // Allow flow to continue for hackathon/demo
-      }
+      // try {
+      //   final sendReport = await send(message, smtpServer);
+      //   print('Message sent: ${sendReport.toString()}');
+      //   return true;
+      // } catch (e) {
+      //   print('Message not sent. \n${e.toString()}');
+      //   return true; 
+      // }
+      return true; 
     },
     sendPasswordResetEmail: (session, userInfo, validationCode) async {
       final email = userInfo.email;
@@ -76,19 +77,20 @@ void run(List<String> args) async {
           <p><i>- The Carbon Tracker Team</i></p>
         ''';
 
-      // HACKATHON FIX: Print immediately before attempting to send
+      // HACKATHON FIX: Print immediately and SKIP sending to avoid Render timeout
       print('-------------------------------------------');
       print('RESET CODE: $validationCode');
       print('-------------------------------------------');
 
-      try {
-        final sendReport = await send(message, smtpServer);
-        print('Reset message sent: ${sendReport.toString()}');
-        return true;
-      } catch (e) {
-        print('Reset message not sent. \n${e.toString()}');
-        return true; // Allow flow to continue
-      }
+      // try {
+      //   final sendReport = await send(message, smtpServer);
+      //   print('Reset message sent: ${sendReport.toString()}');
+      //   return true;
+      // } catch (e) {
+      //   print('Reset message not sent. \n${e.toString()}');
+      //   return true;
+      // }
+      return true;
     },
   ));
 
