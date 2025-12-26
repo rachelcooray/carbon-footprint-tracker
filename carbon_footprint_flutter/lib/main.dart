@@ -165,18 +165,20 @@ class _MyAppState extends State<MyApp> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                ElevatedButton.icon(
-                  onPressed: () {
-                     Navigator.of(context).push(
-                       MaterialPageRoute(builder: (context) => SignInScreen(caller: client.modules.auth)),
-                     );
-                  },
-                  icon: const Icon(Icons.email_rounded),
-                  label: const Text('Sign in with Email'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                Theme(
+                  data: Theme.of(context).copyWith(
+                    elevatedButtonTheme: ElevatedButtonThemeData(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        textStyle: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  child: SignInWithEmailButton(
+                    caller: client.modules.auth,
                   ),
                 ),
               ],
