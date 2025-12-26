@@ -168,8 +168,8 @@ class Endpoints extends _i1.EndpointDispatch {
         'generateDailyBriefing': _i1.MethodConnector(
           name: 'generateDailyBriefing',
           params: {
-            'clientTimeContext': _i1.ParameterDescription(
-              name: 'clientTimeContext',
+            'timeContext': _i1.ParameterDescription(
+              name: 'timeContext',
               type: _i1.getType<String>(),
               nullable: false,
             )
@@ -180,7 +180,7 @@ class Endpoints extends _i1.EndpointDispatch {
           ) async =>
               (endpoints['butler'] as _i3.ButlerEndpoint).generateDailyBriefing(
             session,
-            params['clientTimeContext'],
+            params['timeContext'],
           ),
         ),
         'getGridStatus': _i1.MethodConnector(

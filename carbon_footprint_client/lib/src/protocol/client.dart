@@ -87,11 +87,11 @@ class EndpointButler extends _i1.EndpointRef {
         {},
       );
 
-  _i2.Future<String> generateDailyBriefing(String clientTimeContext) =>
+  _i2.Future<String> generateDailyBriefing(String timeContext) =>
       caller.callServerEndpoint<String>(
         'butler',
         'generateDailyBriefing',
-        {'clientTimeContext': clientTimeContext},
+        {'timeContext': timeContext},
       );
 
   _i2.Stream<String> briefingStream() =>

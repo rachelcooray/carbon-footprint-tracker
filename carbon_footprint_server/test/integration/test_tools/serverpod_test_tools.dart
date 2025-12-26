@@ -376,7 +376,7 @@ class _ButlerEndpoint {
 
   _i3.Future<String> generateDailyBriefing(
     _i1.TestSessionBuilder sessionBuilder,
-    String clientTimeContext,
+    String timeContext,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -389,8 +389,7 @@ class _ButlerEndpoint {
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'butler',
           methodName: 'generateDailyBriefing',
-          parameters:
-              _i1.testObjectToJson({'clientTimeContext': clientTimeContext}),
+          parameters: _i1.testObjectToJson({'timeContext': timeContext}),
           serializationManager: _serializationManager,
         );
         var _localReturnValue = await (_localCallContext.method.call(

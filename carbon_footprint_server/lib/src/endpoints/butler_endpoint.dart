@@ -236,7 +236,7 @@ class ButlerEndpoint extends Endpoint {
     );
   }
 
-  Future<String> generateDailyBriefing(Session session, String clientTimeContext) async {
+  Future<String> generateDailyBriefing(Session session, String timeContext) async {
     final userInfo = await session.authenticated;
     if (userInfo == null) return "I cannot find your dossier.";
 
@@ -251,7 +251,6 @@ class ButlerEndpoint extends Endpoint {
     final gridAdvice = GridService.getGridAdvice();
     
     // Use client provided time context
-    final timeContext = clientTimeContext;
     final now = DateTime.now();
 
     final prompt = 'User Data: Level ${profile?.level ?? 1}, Eco Score ${profile?.ecoScore ?? 0}, Streak ${profile?.streakDays ?? 0}. '
@@ -261,7 +260,7 @@ class ButlerEndpoint extends Endpoint {
         'Generate a formal, exceptionally polite $timeContext briefing (max 3 sentences) for $userName. '
         'CRITICAL RULE: You MUST use a greeting appropriate for the $timeContext. '
         'If the context is "afternoon", you MUST say "Good afternoon" or "A pleasant afternoon". '
-        'If "evening", say "Good evening". If "night", say "Good night". '
+        'If "evening", say "Good evening". If "night", say "Good evening". '
         'DO NOT use the word "morning" unless the Time Context is explicitly "morning". '
         'STYLE RULES: Randomly select a tone: Philosophical (nature-focused), Technical (grid/metrics focused), Celebratory (streak/level focused), or Encouraging (warm/supportive). '
         'STRUCTURE RULES: Each briefing must follow a different pattern: [Greeting + Impact Stat + Personal Tip], [Insight + Encouragement + Action Quest], or [Reflection + Grid Warning + Kind Suggestion]. '

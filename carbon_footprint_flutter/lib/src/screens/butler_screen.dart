@@ -136,8 +136,7 @@ class _ButlerScreenState extends State<ButlerScreen> {
   Future<void> _pickAndAnalyzePDF() async {
     try {
       final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf', 'png', 'jpg', 'jpeg'],
+        type: FileType.any, // Use any to ensure web compatibility
       );
 
       if (result == null || result.files.isEmpty) return;

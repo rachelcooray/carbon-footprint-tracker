@@ -96,270 +96,207 @@ class _DashboardContentState extends State<DashboardContent> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          if (constraints.maxWidth > 900) {
-            // DESKTOP LAYOUT (2 Columns)
-            return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Left Column: Visuals & Status
-                  Expanded(
-                    flex: 4,
-                    child: Column(
-                      children: [
-                        _buildEcoScoreCard(theme, isDark, ecoScore),
-                        const SizedBox(height: 24),
-                        _buildYourForestCard(isDark),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 24),
-                  // Right Column: Data & Actions
-                  Expanded(
-                    flex: 6,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(child: _buildImpactCard(totalCo2Saved: _stats?.totalCo2Saved ?? 0)),
-                            const SizedBox(width: 16),
-                            Expanded(child: _buildBudgetGauge()),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                        if (_butlerEvents.isNotEmpty) ...[
-                          _buildButlerSuggestion(_butlerEvents.first),
-                          const SizedBox(height: 24),
-                        ],
-                        Text('Recent Activity', style: Theme.of(context).textTheme.titleLarge),
-                        const SizedBox(height: 8),
-                        _buildRecentActivityButtons(),
-                        const SizedBox(height: 24),
-                        _buildTipCarousel(),
-                        const SizedBox(height: 24),
-                        _buildEnvisioningSimulator(),
-                        const SizedBox(height: 24),
-                        _buildBaselineButton(),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          } else {
-            // MOBILE LAYOUT (1 Column)
-            return SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 8),
-                  _buildEcoScoreCard(theme, isDark, ecoScore),
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Expanded(child: _buildImpactCard(totalCo2Saved: _stats?.totalCo2Saved ?? 0)),
-                      const SizedBox(width: 16),
-                      Expanded(child: _buildBudgetGauge()),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  if (_butlerEvents.isNotEmpty) ...[
-                    _buildButlerSuggestion(_butlerEvents.first),
-                    const SizedBox(height: 24),
-                  ],
-                  Text('Recent Activity', style: Theme.of(context).textTheme.titleLarge),
-                  const SizedBox(height: 8),
-                  _buildRecentActivityButtons(),
-                  const SizedBox(height: 24),
-                  _buildTipCarousel(),
-                  const SizedBox(height: 24),
-                  _buildEnvisioningSimulator(),
-                  const SizedBox(height: 24),
-                  _buildBaselineButton(),
-                  const SizedBox(height: 24),
-                  _buildYourForestCard(isDark),
-                ],
-              ),
-            );
-          }
-        },
-      ),
-    );
-  }
-
-  Widget _buildEcoScoreCard(ThemeData theme, bool isDark, int ecoScore) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: GlassCard(
-        gradientColors: isDark ? [
-          theme.colorScheme.primary,
-          theme.colorScheme.secondary,
-          theme.colorScheme.tertiary.withValues(alpha: 0.8),
-        ] : [
-          theme.colorScheme.primary,
-          theme.colorScheme.secondary,
-          theme.colorScheme.tertiary.withValues(alpha: 0.9),
-        ],
-        child: Padding(
-          padding: const EdgeInsets.all(24),
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(height: 8),
+              // 1. Eco Score Card (Premium Gradient)
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: GlassCard(
+                gradientColors: isDark ? [
+                  theme.colorScheme.primary,
+                  theme.colorScheme.secondary,
+                  theme.colorScheme.tertiary.withValues(alpha: 0.8),
+                ] : [
+                  theme.colorScheme.primary,
+                  theme.colorScheme.secondary,
+                  theme.colorScheme.tertiary.withValues(alpha: 0.9), // Gold/Yellow accent
+                ],
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
                     children: [
-                      Text('Eco Score', style: GoogleFonts.outfit(color: Colors.white.withValues(alpha: 0.8), fontSize: 14, fontWeight: FontWeight.w600, letterSpacing: 1.2)),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text('$ecoScore', style: const TextStyle(color: Colors.white, fontSize: 64, fontWeight: FontWeight.w900, letterSpacing: -3)),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Eco Score', style: GoogleFonts.outfit(color: Colors.white.withValues(alpha: 0.8), fontSize: 14, fontWeight: FontWeight.w600, letterSpacing: 1.2)),
+                              Text('$ecoScore', style: const TextStyle(color: Colors.white, fontSize: 64, fontWeight: FontWeight.w900, letterSpacing: -3)),
+                            ],
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10),
+                              ],
+                            ),
+                            child: const Icon(Icons.eco, color: Colors.white, size: 32),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      Container(height: 1, color: Colors.white24),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _buildMiniStat(Icons.trending_up, 'Level', '${_stats?.level ?? 1}'),
+                          _buildMiniStat(Icons.local_fire_department, 'Streak', '${_stats?.streakDays ?? 0} days'),
+                          _buildMiniStat(Icons.public, 'Rank', '#4'),
+                        ],
                       ),
                     ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10),
-                      ],
-                    ),
-                    child: const Icon(Icons.eco, color: Colors.white, size: 32),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              Container(height: 1, color: Colors.white24),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildMiniStat(Icons.trending_up, 'Level', '${_stats?.level ?? 1}'),
-                  _buildMiniStat(Icons.local_fire_department, 'Streak', '${_stats?.streakDays ?? 0} days'),
-                  _buildMiniStat(Icons.public, 'Rank', '#4'),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildYourForestCard(bool isDark) {
-    return GestureDetector(
-      onTap: () => _showForestAnalysis(),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: Stack(
-          children: [
-             Image.network(
-              _getForestImage(_stats?.ecoScore ?? 0),
-              fit: BoxFit.cover,
-              height: 200,
-              width: double.infinity,
-            ),
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.black.withValues(alpha: isDark ? 0.7 : 0.85), 
-                      Colors.transparent
-                    ],
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
                   ),
                 ),
               ),
             ),
-            Positioned(
-              bottom: 20,
-              left: 20,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Your Forest', style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 14)),
-                  const Text(
-                    'Growing with every action.',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+            const SizedBox(height: 24),
+
+            // 2. Impact & Budget Row (Squares) - MOVED UP
+            Row(
+              children: [
+                Expanded(child: _buildImpactCard(totalCo2Saved: _stats?.totalCo2Saved ?? 0)),
+                const SizedBox(width: 16),
+                Expanded(child: _buildBudgetGauge()),
+              ],
+            ),
+            const SizedBox(height: 24),
+
+            // 3. Butler's Suggestions
+            if (_butlerEvents.isNotEmpty) ...[
+              _buildButlerSuggestion(_butlerEvents.first),
+              const SizedBox(height: 24),
+            ],
+
+            // 4. Recent Activity (Buttons)
+            Text('Recent Activity', style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      refreshNotifier.value++; // Trigger Global Refresh
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Refreshing entire app...')));
+                    },
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Refresh'),
                   ),
-                ],
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryScreen()));
+                    },
+                    child: const Text('History'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const BadgesScreen()));
+                    },
+                    child: const Text('Trophies'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+
+            // 5. Tip of the Day Cards
+            _buildTipCarousel(),
+            const SizedBox(height: 24),
+
+            // 6. Eco-Envisioning 2.0
+            _buildEnvisioningSimulator(),
+            const SizedBox(height: 24),
+
+            // 7. Baseline Footprint Calc (Standalone Button)
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => _showBaselineCalculator(),
+                icon: const Icon(Icons.calculate_outlined),
+                label: const Text('Analyze Footprint Baseline'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
               ),
             ),
-            Positioned(
-              top: 10,
-              right: 10,
-              child: Icon(Icons.touch_app, color: Colors.white.withValues(alpha: 0.5), size: 20),
+            const SizedBox(height: 24),
+
+            // 8. Your Forest
+            GestureDetector(
+              onTap: () => _showForestAnalysis(),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Stack(
+                  children: [
+                     Image.network(
+                      _getForestImage(_stats?.ecoScore ?? 0),
+                      fit: BoxFit.cover,
+                      height: 200,
+                      width: double.infinity,
+                    ),
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.black.withValues(alpha: isDark ? 0.7 : 0.85), 
+                              Colors.transparent
+                            ],
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 20,
+                      left: 20,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Your Forest', style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 14)),
+                          const Text(
+                            'Growing with every action.',
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Positioned(
+                      top: 10,
+                      right: 10,
+                      child: Icon(Icons.touch_app, color: Colors.white.withValues(alpha: 0.5), size: 20),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRecentActivityButtons() {
-    return Row(
-      children: [
-        Expanded(
-          child: OutlinedButton.icon(
-            onPressed: () {
-              refreshNotifier.value++; // Trigger Global Refresh
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Refreshing entire app...')));
-            },
-            icon: const Icon(Icons.refresh),
-            label: const Text('Refresh'),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: OutlinedButton(
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryScreen()));
-            },
-            child: const Text('History'),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: OutlinedButton(
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const BadgesScreen()));
-            },
-            child: const Text('Trophies'),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBaselineButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: () => _showBaselineCalculator(),
-        icon: const Icon(Icons.calculate_outlined),
-        label: const Text('Analyze Footprint Baseline'),
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
       ),
     );
