@@ -151,6 +151,7 @@ class _MorningBriefingScreenState extends State<MorningBriefingScreen> with Sing
               ),
             ),
           ),
+          ),
         ],
       ),
     );
