@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:carbon_footprint_client/carbon_footprint_client.dart';
 import '../../main.dart'; // To access global `client`
 import '../widgets/glass_card.dart';
+import '../widgets/responsive_center.dart';
 
 class LogActionScreen extends StatefulWidget {
   const LogActionScreen({super.key});
@@ -51,17 +52,18 @@ class _LogActionScreenState extends State<LogActionScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('New Entry')),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).colorScheme.surface,
-              Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
-            ],
+      body: ResponsiveCenter(
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Theme.of(context).colorScheme.surface,
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+              ],
+            ),
           ),
-        ),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Form(
@@ -168,6 +170,7 @@ class _LogActionScreenState extends State<LogActionScreen> {
               ],
             ),
           ),
+        ),
         ),
       ),
     );

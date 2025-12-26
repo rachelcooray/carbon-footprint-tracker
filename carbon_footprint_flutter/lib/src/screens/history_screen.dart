@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:carbon_footprint_client/carbon_footprint_client.dart';
 import 'package:intl/intl.dart';
 import '../../main.dart';
+import '../widgets/responsive_center.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -42,7 +43,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Action History')),
-      body: _isLoading
+      body: ResponsiveCenter(
+        child: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _logs.isEmpty
             ? const Center(child: Text('No actions logged yet.'))
@@ -71,6 +73,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   );
                 },
               ),
+      ),
     );
   }
 }

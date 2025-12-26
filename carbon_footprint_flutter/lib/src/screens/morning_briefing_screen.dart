@@ -93,9 +93,11 @@ class _MorningBriefingScreenState extends State<MorningBriefingScreen> with Sing
             ),
           ),
           Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: FadeTransition(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: FadeTransition(
                 opacity: _fadeAnimation,
                 child: GlassCard(
                   child: Column(
