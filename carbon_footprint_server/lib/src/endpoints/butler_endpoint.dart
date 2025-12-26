@@ -109,13 +109,12 @@ class ButlerEndpoint extends Endpoint {
     );
     await ButlerMessage.db.insertRow(session, userMsg);
 
-    String responseText;
     // Fetch context for the chat
     final profile = await UserProfile.db.findFirstRow(session, where: (t) => t.userId.equals(userId));
     final contextBlock = '''
 [SYSTEM CONTEXT]
 User Stats:
-- Level: ${profile?.level ?? 1} (${profile?.levelLabel ?? 'Fledgling Woods'})
+- Level: ${profile?.level ?? 1} (${_getLevelLabel(profile?.level ?? 1)})
 - Eco Score: ${profile?.ecoScore ?? 0}
 - Streak: ${profile?.streakDays ?? 0} days
 - Monthly Budget: ${profile?.monthlyBudget ?? 0} kg CO2
@@ -124,6 +123,7 @@ User Stats:
 
     final textWithContext = "$contextBlock\n\nUser Query: $text";
 
+    String responseText;
     if (model == null) {
       responseText = "I'm sorry, $userName, but my intellectual circuits (API Key) seem to be disconnected.";
     } else {
@@ -188,7 +188,7 @@ User Stats:
     final contextBlock = '''
 [SYSTEM CONTEXT]
 User Stats:
-- Level: ${profile?.level ?? 1} (${profile?.levelLabel ?? 'Fledgling Woods'})
+- Level: ${profile?.level ?? 1} (${_getLevelLabel(profile?.level ?? 1)})
 - Eco Score: ${profile?.ecoScore ?? 0}
 - Streak: ${profile?.streakDays ?? 0} days
 - Monthly Budget: ${profile?.monthlyBudget ?? 0} kg CO2
@@ -455,5 +455,13 @@ Greeting: Use appropriate $timeContext greeting.
     } catch (e) {
       return "I apologize, $userName, but I could not analyze this visual data. ($e)";
     }
+  }
+
+  String _getLevelLabel(int level) {
+    if (level <= 1) return 'Fledgling Woods';
+    if (level == 2) return 'Verdurous Grove';
+    if (level == 3) return 'Blooming Canopy';
+    if (level == 4) return 'Emerald Sanctuary';
+    return 'Earth Guardian Realm';
   }
 }
