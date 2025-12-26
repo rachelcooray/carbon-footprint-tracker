@@ -65,9 +65,9 @@ class SettingsScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  _buildContactRow(context, Icons.phone_rounded, '+44 770 471 6474'),
+                  _buildContactRow(context, Icons.phone_rounded, '+94 77 177 0570'),
                   const Divider(),
-                  _buildContactRow(context, Icons.email_rounded, 'rachelcooraytest@gmail.com'),
+                  _buildContactRow(context, Icons.email_rounded, 'rachelcooray@gmail.com'),
                   const Divider(),
                    _buildContactRow(context, Icons.chat_bubble_outline_rounded, 'Send Feedback'),
                 ],

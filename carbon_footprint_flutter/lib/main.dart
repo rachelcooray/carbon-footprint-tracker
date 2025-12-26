@@ -165,8 +165,19 @@ class _MyAppState extends State<MyApp> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                SignInWithEmailButton(
-                  caller: client.modules.auth,
+                ElevatedButton.icon(
+                  onPressed: () {
+                     Navigator.of(context).push(
+                       MaterialPageRoute(builder: (context) => SignInScreen(caller: client.modules.auth)),
+                     );
+                  },
+                  icon: const Icon(Icons.email_rounded),
+                  label: const Text('Sign in with Email'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  ),
                 ),
               ],
             ),
