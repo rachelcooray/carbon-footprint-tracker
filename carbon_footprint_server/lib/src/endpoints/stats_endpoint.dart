@@ -19,7 +19,17 @@ class StatsEndpoint extends Endpoint {
     }
     final userId = userInfo.userId;
 
-    final profile = await UserProfile.db.findFirstRow(session, where: (t) => t.userId.equals(userId));
+    // Fetch user name to sync with profile
+    final user = await Users.findUserByUserId(session, userId);
+    final userName = user?.userName;
+
+    var profile = await UserProfile.db.findFirstRow(session, where: (t) => t.userId.equals(userId));
+    if (profile != null) {
+      if (profile.userName == null && userName != null) {
+        profile.userName = userName;
+        await UserProfile.db.updateRow(session, profile);
+      }
+    }
 
     var logs = await ActionLog.db.find(
       session,
@@ -64,6 +74,18 @@ class StatsEndpoint extends Endpoint {
       orderDescending: true,
       limit: 10,
     );
+    
+    // Ensure all entries have usernames if possible
+    for (var profile in results) {
+      if (profile.userName == null || profile.userName!.startsWith('User #')) {
+        final user = await Users.findUserByUserId(session, profile.userId);
+        if (user != null && user.userName != null) {
+          profile.userName = user.userName;
+          await UserProfile.db.updateRow(session, profile);
+        }
+      }
+    }
+    
     return results;
   }
 

@@ -7,11 +7,16 @@ class ActionService {
     log.userId = userId;
     await ActionLog.db.insertRow(session, log);
 
-    // 1. Update User Profile (Eco Score, Level, Streak)
+    // 1. Update User Profile (Eco Score, Level, Streak, Name)
+    final user = await Users.findUserByUserId(session, userId);
+    final userName = user?.userName;
+
     var profile = await UserProfile.db.findFirstRow(session, where: (t) => t.userId.equals(userId));
     if (profile == null) {
-      profile = UserProfile(userId: userId, ecoScore: 0, joinedDate: DateTime.now(), level: 1, streakDays: 0);
+      profile = UserProfile(userId: userId, ecoScore: 0, joinedDate: DateTime.now(), level: 1, streakDays: 0, userName: userName);
       await UserProfile.db.insertRow(session, profile);
+    } else if (profile.userName == null && userName != null) {
+      profile.userName = userName;
     }
 
     // Calculate Streak
@@ -38,7 +43,6 @@ class ActionService {
 
     // 2. Social Post
     final action = await EcoAction.db.findById(session, log.actionId);
-    final user = await Users.findUserByUserId(session, userId);
     
     await SocialPost.db.insertRow(session, SocialPost(
       userId: userId,
