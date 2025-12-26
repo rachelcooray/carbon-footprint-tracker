@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:carbon_footprint_client/carbon_footprint_client.dart';
 import '../../main.dart'; // To access global `client`
+import 'dart:async'; // For Timer
 import 'history_screen.dart';
 import 'badges_screen.dart';
 import '../widgets/glass_card.dart';
@@ -16,6 +17,7 @@ class DashboardContent extends StatefulWidget {
 
 class _DashboardContentState extends State<DashboardContent> {
   UserStats? _stats;
+  Timer? _refreshTimer;
   List<ActionLog> _recentActions = [];
   List<ButlerEvent> _butlerEvents = [];
   bool _isLoading = true;
@@ -38,9 +40,17 @@ class _DashboardContentState extends State<DashboardContent> {
   void initState() {
     super.initState();
     _fetchData();
+    // Auto-refresh every 5 seconds to keep score live
+    _refreshTimer = Timer.periodic(const Duration(seconds: 5), (_) => _fetchData(isSilent: true));
   }
 
-  Future<void> _fetchData() async {
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _fetchData({bool isSilent = false}) async {
     try {
       final stats = await client.stats.getUserStats(0);
       // Insert seed check after fetching stats
@@ -48,9 +58,10 @@ class _DashboardContentState extends State<DashboardContent> {
         _hasAttemptedSeed = true;
         // If stats are all default/zero, it might mean no data, so seed it.
         await client.seed.seedData();
+        await client.seed.seedData();
         // Re-fetch data after seeding
         if (mounted) {
-          _fetchData();
+          _fetchData(isSilent: isSilent);
           return; 
         }
       }
@@ -66,7 +77,7 @@ class _DashboardContentState extends State<DashboardContent> {
           _butlerEvents = suggestions;
           _gridStatus = status;
           _gridAdvice = advice;
-          _isLoading = false;
+          if (!isSilent) _isLoading = false;
         });
       }
     } catch (e) {
