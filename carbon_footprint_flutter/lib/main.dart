@@ -179,8 +179,12 @@ class SignInPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  child: SignInWithEmailButton(
+                    child: SignInWithEmailButton(
                     caller: client.modules.auth,
+                    localization: SignInWithEmailDialogLabels.enUS(
+                      messageEmailVerificationSent: 'Please check your email. We have sent you a code to verify your address.\n\nNote: It could be in spam, and it could take up to 2 mins to get the code.',
+                      messagePasswordResetSent: 'Please check your email. We have sent you a code to verify your account.\n\nNote: It could be in spam, and it could take up to 2 mins to get the code.',
+                    ),
                   ),
                 ),
             ],
